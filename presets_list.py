@@ -45,7 +45,7 @@ class PresetsList():
                 [cat_list.add(value) for value in values]
         return cat_list
     def getShowUsers(self):
-        return ["yrudakov"]
+        return ["yrudakov","zyong"]
     def getSetups(self,user,category):
         setups = []
         #s = self.data_structure[user]
@@ -56,6 +56,26 @@ class PresetsList():
             pass
         #print(setups)
         return setups
+    def isSetupUnigue(self,user_in,category_in,setup_in):
+        print(self.data_structure[user_in])
+        #print(self.getCategories(2))
+        print(self.getSetups(user_in,category_in))
+        result = False
+        setups = self.getSetups(user_in,category_in)
+        if len(setups) == 0:
+            result = True
+        else:
+            for setup in setups:
+                if setup == setup_in:
+                    print(setup)
+                    result = False
+                    break
+                else:
+                    result = True
+        print(result)
+        return result
+
+
 
 
 class PresetsItem(QTreeWidgetItem):

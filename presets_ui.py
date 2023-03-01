@@ -161,6 +161,14 @@ class Ui_Form(object):
         self.label_txt2.setText(QCoreApplication.translate("Form", u"Category/Name:", None))
         self.btn_create.setText(QCoreApplication.translate("Form", u"Create", None))
         self.label_drop.setText(QCoreApplication.translate("Form", u"Drop your preset here.", None))
+        self.txtEdit_info.setHtml(QCoreApplication.translate("Form", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"hr { height: 1px; border-width: 0; }\n"
+"li.unchecked::marker { content: \"\\2610\"; }\n"
+"li.checked::marker { content: \"\\2612\"; }\n"
+"</style></head><body style=\" font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Add description of your setup please.</p></body></html>", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.create_presets), QCoreApplication.translate("Form", u"Create Preset", None))
     # retranslateUi
 
