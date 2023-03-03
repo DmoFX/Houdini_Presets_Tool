@@ -1,22 +1,30 @@
-import sys,os
+import sys,os,time
 from presets_ui import Ui_Form
 from presets_list import PresetsList,PresetsItem
 from PySide2.QtWidgets import QApplication,QWidget,QLabel,QVBoxLayout,QPushButton,QDial,QTreeWidget, QTreeView,QTreeWidgetItem,QListWidgetItem,QMessageBox
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtCore import QFile
+from PySide2.QtCore import QFile,QTimer
 from PySide2 import QtGui
 from PySide2.QtCore import Qt,QModelIndex,QSize
-from PySide2.QtGui import QMovie
+from PySide2.QtGui import QMovie,QPixmap,QImage
+try:
+    import hou
+except:
+    pass
 
 class MainWidget(QWidget):
     def __init__(self):
         super(MainWidget,self).__init__()
+        self.setAcceptDrops(True)
         # self.__load_ui() # Autocompletion won't work this way.
         # self.label = self.findChild(QLabel,"label")
         # print(self.label.text())
+        self.libs_path = "C:/Users/lllde/Documents/houdini19.5/python3.9libs/"
         self.folder = "D:/Docs/Work/Python/Projects/Presets"
         self.user = os.environ.get("USERNAME")
         self.presets = PresetsList(self.folder)
+        self.node_path = ""
+        self.selected_setup = ""
 
 
         self.ui = Ui_Form()
@@ -34,6 +42,8 @@ class MainWidget(QWidget):
         self.ui.treeWidget.itemSelectionChanged.connect(self.__treeWidget_clicked)
         self.ui.btn_create.clicked.connect(self.__btn_create_clicked)
         self.ui.btn_load.clicked.connect(self.__btn_load_clicked)
+
+
 
 
     # Load *.ui file as user interface. Autocompletion is not supported this way.
@@ -92,6 +102,9 @@ class MainWidget(QWidget):
     def __tabWidget_clicked(self):
         if self.ui.tabWidget.currentIndex() == 1:
             self.__load_list_widget()
+        else:
+            self.presets = PresetsList(self.folder)
+            self.__load_tree_widget()
         #print(self.ui.tabWidget.currentIndex(), self.ui.tabWidget.currentWidget().objectName())
     def __comboBox_clicked(self):
         self.type = self.ui.comboBox.currentIndex()
@@ -99,8 +112,12 @@ class MainWidget(QWidget):
     def __treeWidget_clicked(self):
         #print("Selected: ", self.ui.treeWidget.currentItem().text(0),self.ui.treeWidget.currentItem().parent().text(0))
         try:
-            path = f"{self.ui.treeWidget.currentItem().user}/{self.ui.treeWidget.currentItem().category}/{self.ui.treeWidget.currentItem().setup}"
-            print("Selected: ", path)
+            self.selected_setup = f"{self.ui.treeWidget.currentItem().user}/{self.ui.treeWidget.currentItem().category}/{self.ui.treeWidget.currentItem().setup}"
+            print("Selected: ", self.selected_setup)
+            if len(self.ui.treeWidget.currentItem().setup)>0:
+                self.ui.label_username.setText("user: {}.".format(self.ui.treeWidget.currentItem().user))
+            else:
+                self.ui.label_username.setText("")
         except:
             pass
 
@@ -117,31 +134,83 @@ class MainWidget(QWidget):
                     item.addChild(PresetsItem([setup], category, user, setup))
             self.ui.treeWidget.sortItems(0,Qt.AscendingOrder)
     def __btn_create_clicked(self):
-        print("btn_create: ",self.ui.lineEdit_name.text(),)
+        # print("btn_create: ",self.ui.lineEdit_name.text(),)
         s = self.ui.lineEdit_name.text().split("/")
         setup_category, setup_name = s[0],s[1].lower()
         unique_check = self.presets.isSetupUnigue(self.user,setup_category,setup_name)
         if len(self.ui.txtEdit_info.toPlainText())==0 or self.ui.txtEdit_info.toPlainText()=="Add description of your setup please.":
             QMessageBox.warning(self, "Attention!", "Add description of your setup please.", QMessageBox.Ok)
         else:
-            if len(setup_name) > 0 and unique_check is True:
+            if len(setup_name) > 0 and unique_check is True and len(self.node_path)>0:
                 setup_path = "{}/{}/{}".format(self.folder,self.user,self.ui.lineEdit_name.text())
-                print(setup_path)
+                self.presets.writeSetupAsCode(setup_path,self.node_path)
+                # print(setup_path)
+                self.ui.label_drop.setText("Drop your preset here.")
+                # self.__load_tree_widget()
                 # Add node path, check it's not empty
                 # Dump data to disk.
             else:
-                QMessageBox.warning(self,"Warning!","Setup name must be unique.",QMessageBox.Ok)
+                QMessageBox.warning(self,"Warning!","Setup name must be unique. Drag and drop your setup.",QMessageBox.Ok)
     def __btn_load_clicked(self):
         print("btn_load: ")
         # Create setup from data.
+        s = self.selected_setup.split("/")
+        if len(s)==3 and len(s[2])>0:
+            setup_path = self.folder+"/"+self.selected_setup
+            print("btn_load: ", self.selected_setup)
+            self.presets.readSetupAsCode(setup_path)
+        else:
+            QMessageBox.warning(self,"Warning!","Select a setup from the list please.",QMessageBox.Ok)
     def __load_label_info(self):
-        movie = QMovie("D:/Docs/Work/Python/Projects/2.Houdini_Qt/default_icon.gif")
+        #movie = QMovie("D:/Docs/Work/Python/Projects/2.Houdini_Qt/default_icon.gif")
+        movie = QMovie("{}/default_icon.gif".format(self.libs_path))
         movie.setScaledSize(QSize(300,150))
         self.ui.label_info.setMovie(movie)
         movie.start()
         # self.ui.label_info.setAlignment(Qt.AlignAbsolute)
         self.ui.label_info.setAlignment(Qt.AlignTop)
 
+    def dragEnterEvent(self, event):
+        # print("dragEnter")
+        if event.mimeData().hasText():
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasText():
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        if event.mimeData().hasText():
+            # print("dropEvent")
+            # print(event.mimeData().hasText(), event.mimeData())
+            event.setDropAction(Qt.DropAction.CopyAction)
+            self.node_path = event.mimeData().text()
+            print("dropEvent: ", self.node_path)
+            print("dropEvent: ", self.node_path.split("\t"))
+            s = self.node_path.split("\t")
+            if len(s)>1:
+                self.node_path = " ".join(s)
+            print("dropEvent: ", self.node_path)
+            if len(self.node_path)>0:
+                try:
+                    node = hou.node(self.node_path)
+                    node.setColor(hou.Color(0.384, 0.184, 0.329))
+                    pxmap = QPixmap("{}/accepted_icon.png".format(self.libs_path)).scaled(100,100)
+                    self.ui.label_drop.setPixmap(pxmap)
+                    QTimer.singleShot(2000, self.__label_drop_change_text)
+                except:
+                    pass
+                event.accept()
+                # time.sleep(3)
+                # self.ui.label_drop.setText("Setup is accepted. Path: {}".format(self.node_path))
+        else:
+            event.ignore()
+    def __label_drop_change_text(self):
+        self.ui.label_drop.setText("Setup is accepted.\n\n      Path: {}".format(self.node_path))
 
 
 

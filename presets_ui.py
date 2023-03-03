@@ -81,6 +81,11 @@ class Ui_Form(object):
 
         self.gridLayout.addItem(self.horizontalSpacer_2, 7, 3, 1, 1)
 
+        self.label_username = QLabel(self.gridLayoutWidget)
+        self.label_username.setObjectName(u"label_username")
+
+        self.gridLayout.addWidget(self.label_username, 2, 3, 1, 1)
+
         self.tabWidget.addTab(self.load_presets, "")
         self.create_presets = QWidget()
         self.create_presets.setObjectName(u"create_presets")
@@ -146,7 +151,7 @@ class Ui_Form(object):
 
         self.retranslateUi(Form)
 
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(Form)
@@ -157,6 +162,7 @@ class Ui_Form(object):
         self.label_info.setText(QCoreApplication.translate("Form", u"Preset information.", None))
         self.btn_load.setText(QCoreApplication.translate("Form", u"Load", None))
         self.label_txt1.setText(QCoreApplication.translate("Form", u"Load as:", None))
+        self.label_username.setText("")
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.load_presets), QCoreApplication.translate("Form", u"Load Presets", None))
         self.label_txt2.setText(QCoreApplication.translate("Form", u"Category/Name:", None))
         self.btn_create.setText(QCoreApplication.translate("Form", u"Create", None))

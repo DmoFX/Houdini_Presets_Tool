@@ -1,5 +1,9 @@
 import sys,os
 from PySide2.QtWidgets import QTreeWidgetItem
+try:
+    import hou
+except:
+    pass
 
 class PresetsList():
     def __init__(self,dir_path=str):
@@ -15,9 +19,10 @@ class PresetsList():
             # print(f"{user}: {category_list}")
             cat_list = []
             for category in category_list:
-                setups = os.listdir(self.dir_path+"/"+user+"/"+category)
-                # print(f"{user}: {category} : {setups}")
-                cat_list.append([category,setups])
+                if os.path.isdir(self.dir_path+"/"+user+"/"+category):
+                    setups = os.listdir(self.dir_path+"/"+user+"/"+category)
+                    # print(f"{user}: {category} : {setups}")
+                    cat_list.append([category,setups])
             data_structure[user] = cat_list
         #print(data_structure)
         return data_structure
@@ -57,9 +62,9 @@ class PresetsList():
         #print(setups)
         return setups
     def isSetupUnigue(self,user_in,category_in,setup_in):
-        print(self.data_structure[user_in])
+        # print(self.data_structure[user_in])
         #print(self.getCategories(2))
-        print(self.getSetups(user_in,category_in))
+        # print(self.getSetups(user_in,category_in))
         result = False
         setups = self.getSetups(user_in,category_in)
         if len(setups) == 0:
@@ -67,13 +72,27 @@ class PresetsList():
         else:
             for setup in setups:
                 if setup == setup_in:
-                    print(setup)
+                    # print(setup)
                     result = False
                     break
                 else:
                     result = True
-        print(result)
+        # print(result)
         return result
+    def writeSetupAsCode(self,setup_path,node_path):
+        if os.path.isdir(setup_path) is False:
+            os.makedirs(setup_path)
+        file_path = setup_path+"/setup.cmd"
+        print("witeSetupAsCode: ",file_path,"  node: ",node_path)
+        cmd = "opscript -G -r " + node_path + " > " + file_path
+        print("witeSetupAsCode: ",cmd)
+        hou.hscript(cmd)
+    def readSetupAsCode(self,setup_path):
+        file_path = setup_path + "/setup.cmd"
+        rcmd = "cmdread " + file_path
+        hou.hscript(rcmd)
+
+
 
 
 
