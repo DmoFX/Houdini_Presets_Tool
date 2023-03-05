@@ -1,7 +1,7 @@
-import sys,os
+import sys,os,json,io
 from PySide2.QtWidgets import QTreeWidgetItem
 try:
-    import hou
+    import hou, toolutils
 except:
     pass
 
@@ -79,19 +79,84 @@ class PresetsList():
                     result = True
         # print(result)
         return result
-    def writeSetupAsCode(self,setup_path,node_path):
+    def writeSetupAsCode(self,setup_path,node_path,setup_description):
         if os.path.isdir(setup_path) is False:
             os.makedirs(setup_path)
         file_path = setup_path+"/setup.cmd"
         print("witeSetupAsCode: ",file_path,"  node: ",node_path)
         cmd = "opscript -G -r " + node_path + " > " + file_path
-        print("witeSetupAsCode: ",cmd)
+        # print("witeSetupAsCode: ",cmd)
         hou.hscript(cmd)
+        # Write addiditional data into info.json
+        print("eeeeeeeeeee:  ", node_path)
+        list = self.__getParentsList(node_path)
+        dic = {"node_path": node_path, "description": setup_description,"list":list}
+        print("eeeeeeeeeee1:  ",dic)
+        with open(setup_path+"/info.json",'w') as f:
+            json.dump(dic,f)
     def readSetupAsCode(self,setup_path):
+        # Read data from json file
+        with open(setup_path+"/info.json") as f:
+            data = json.load(f)
+        print("------------- readSetupAsCode ------------: \n",data)
+        node_path = data["node_path"]
+        setup_description = data["description"]
+        list = data["list"]
+        # Recreate original parents based on node_path if they don't exist yet.
+        self.__createParentNodes(node_path,list)
+        # Read nodes from file.
         file_path = setup_path + "/setup.cmd"
         rcmd = "cmdread " + file_path
         hou.hscript(rcmd)
+        # Set current Viewport and Network View to the setup
+        self.__setCurrentView(node_path)
+        return setup_description
 
+    def __createParentNodes(self,node_path,list):
+        # Go over parents tuple data and create nodes if they don't exist yet.
+        for data in list:
+            is_exist = False
+            path = data[0]
+            print("---------------", path, "----------")
+            try:
+                p = hou.node(path).name()
+                is_exist = True
+                print("try: ", is_exist)
+            except:
+                is_exist = False
+                print("except: ", is_exist)
+                pass
+            if is_exist is False:
+                path = data[0].strip(data[2])
+                n = hou.node(path).createNode(data[1], data[2])
+
+    def __getParentsList(self,node_path):
+        # n = hou.node(node_path)
+        path = node_path
+        list = []
+        while path > "/":
+            n = hou.node(path)
+            list.append((n.parent().path(), n.parent().type().name(), n.parent().name()))
+            path = n.parent().path()
+            # print(path)
+        # Remove / and /obj paths
+        print(list)
+        list.pop()
+        list.pop()
+        list.reverse()
+        print(list)
+        return list
+    def __setCurrentView(self,node_path):
+        n = hou.node(node_path)
+        # print(n)
+        scene_viewer = toolutils.sceneViewer()
+        scene_viewer.cd(n.parent().path())
+        network_editor = hou.ui.paneTabOfType(hou.paneTabType.NetworkEditor)
+        network_editor.cd(n.parent().path())
+        # print("NE: ", n.parent().path(), network_editor, "  SV:  ", scene_viewer)
+        n.setDisplayFlag(1)
+        n.setCurrent(True)
+        # scene_viewer.setCurrentNode(n)
 
 
 

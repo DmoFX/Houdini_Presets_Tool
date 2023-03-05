@@ -143,12 +143,9 @@ class MainWidget(QWidget):
         else:
             if len(setup_name) > 0 and unique_check is True and len(self.node_path)>0:
                 setup_path = "{}/{}/{}".format(self.folder,self.user,self.ui.lineEdit_name.text())
-                self.presets.writeSetupAsCode(setup_path,self.node_path)
+                self.presets.writeSetupAsCode(setup_path,self.node_path,self.ui.txtEdit_info.toPlainText())
                 # print(setup_path)
                 self.ui.label_drop.setText("Drop your preset here.")
-                # self.__load_tree_widget()
-                # Add node path, check it's not empty
-                # Dump data to disk.
             else:
                 QMessageBox.warning(self,"Warning!","Setup name must be unique. Drag and drop your setup.",QMessageBox.Ok)
     def __btn_load_clicked(self):
@@ -158,7 +155,8 @@ class MainWidget(QWidget):
         if len(s)==3 and len(s[2])>0:
             setup_path = self.folder+"/"+self.selected_setup
             print("btn_load: ", self.selected_setup)
-            self.presets.readSetupAsCode(setup_path)
+            description = self.presets.readSetupAsCode(setup_path)
+            self.ui.label_info.setText(description)
         else:
             QMessageBox.warning(self,"Warning!","Select a setup from the list please.",QMessageBox.Ok)
     def __load_label_info(self):
