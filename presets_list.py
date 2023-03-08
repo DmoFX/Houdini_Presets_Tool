@@ -1,5 +1,6 @@
 import sys,os,json,io
 from PySide2.QtWidgets import QTreeWidgetItem
+from numpy import random
 try:
     import hou, toolutils
 except:
@@ -87,15 +88,11 @@ class PresetsList():
         cmd = "opscript -G -r " + node_path + " > " + file_path
         # print("witeSetupAsCode: ",cmd)
         hou.hscript(cmd)
-        # Modify cmd file to wrap it into subnet
-
-        # Write addiditional data into info.json
         print("-----------------  witeSetupAsCode ----------:  ")
         # In case you pass multiple nodes "/obj/geo/sphere /obj/geo/grid", take only first to get their parents
         if node_path.find(" ") > 0:
             node_path = node_path.split(" ")[0]
         list = self.__getParentsList(node_path)
-
         dic = {"node_path": node_path, "description": setup_description,"list":list,"type":hou.node(node_path).type().name()}
         with open(setup_path+"/info.json",'w') as f:
             json.dump(dic,f)
@@ -107,29 +104,18 @@ class PresetsList():
         node_path = data["node_path"]
         setup_description = data["description"]
         list = data["list"]
-        # Recreate original parents based on node_path if they don't exist yet.
-        is_exist = self.__createParentNodes(node_path,list)
-        # Replace parent nodes name if parent node is already exist.
-        if is_exist is True:
-            self.__replaceParentNodes(node_path,list,setup_path,data["type"])
-        else:
-            # Read nodes from file.
-            print("....... create setup if empty ..........")
-            file_path = setup_path + "/setup.cmd"
-            rcmd = "cmdread " + file_path
-            hou.hscript(rcmd)
-        # Set current Viewport and Network View to the setup
-        self.__setCurrentView(node_path)
+        num = len(list) - 1
+        parent_node = list[num][0]
+        # Create all parent nodes and subnet __setup__ to load your preset in.
+        subnet = self.__createParentNodes(node_path, list)
+        parent_node = self.__loadSetupInSubnet(node_path,parent_node,setup_path,subnet)
+        # Set current Network and Scene Viewport
+        self.__setCurrentView(parent_node)
         return setup_description
-    # def __createSubnet(self,node_path,list):
-    #     exist = 0
-    #     for n in parent.children():
-    #         if (n.type() == hou.nodeType(hou.objNodeTypeCategory(), "geo")):
-    #             if n.name() == "circle_object1":
-    #             exist = 1
 
     def __createParentNodes(self,node_path,list):
         # Go over parents tuple data and create nodes if they don't exist yet.
+        print("########## ----- CREATE  PARENTS  IN  -----------  ########")
         is_exist = False
         for data in list:
             is_exist = False
@@ -146,35 +132,48 @@ class PresetsList():
             if is_exist is False:
                 path = data[0].strip(data[2])
                 n = hou.node(path).createNode(data[1], data[2])
-        return is_exist
-    def __replaceParentNodes(self,node_path,list,setup_path,type):
-        print("------------- replaceParentNodes ------------: \n")
+                print("Created",n.path())
+        # Create subnet __setup__ to load data there
         num = len(list) - 1
         parent_node = list[num][0]
         print("Old parent:", parent_node)
-        # tmp_parent_node = parent_node + "/__setup_unique__"
-        tmp_parent_node = parent_node + "/{}_unique__".format(list[num][2])
-        print("New parent:",tmp_parent_node)
-        print(setup_path + "/setup.cmd")
-        # Create new parent Node.
+        subnet = "__setup__"
+        base = subnet
+        # Check if any other __setup__ has been already created.
+        pos = hou.Vector2(0, 0)
+        for n in hou.node(parent_node).children():
+            if n.type().name() == "subnet" and base in n.name():
+                r = round(random.rand() * 1000)
+                subnet += str(r)
+                pos = n.position()
+                pos[1] -= .75
 
-        node = hou.node(parent_node).createNode(type,"{}_unique__".format(list[num][2]))
-        node.setColor(hou.Color(0.384, 0.184, 0.329))
-        print(node.path())
+        print("subnet:", subnet)
+        new_parent_node = parent_node + "/" + subnet
+        print("New parent:", new_parent_node)
+        subnet_node = hou.node(parent_node).createNode("subnet", subnet)
+        subnet_node.setPosition(pos)
+        subnet_node.setColor(hou.Color(0.384, 0.184, 0.329))
+        print("########## ----- CREATE  PARENTS  OUT  -----------  ########")
+        #return is_exist
+        return subnet
+    def __loadSetupInSubnet(self,node_path,parent_node,setup_path,subnet):
+        print("------------- __loadSetupInSubnet ------------: \n")
+        new_parent_node = parent_node + "/" + subnet
+        print("New parent:", new_parent_node)
         # Read and modify cmd file. Create a new one with new parent node to be sure it's empty.
+        print(setup_path + "/setup.cmd")
         with open(setup_path + "/setup.cmd") as f:
             txt = f.read()
         # print(txt)
-        txt = txt.replace("opcf " + parent_node, "opcf " + tmp_parent_node)
+        txt = txt.replace("opcf " + parent_node, "opcf " + new_parent_node)
         # print(txt)
         with open(setup_path + "/setup_unique.cmd", 'w') as f:
             f.write(txt)
-
         file_path = setup_path + "/setup_unique.cmd"
         rcmd = "cmdread " + file_path
         hou.hscript(rcmd)
-
-
+        return new_parent_node
     def __getParentsList(self,node_path):
         # n = hou.node(node_path)
         path = node_path
@@ -192,8 +191,11 @@ class PresetsList():
         print(list)
         return list
     def __setCurrentView(self,node_path):
+        print("------------- __setCurrentView ------------: \n")
+        # print(node_path)
         n = hou.node(node_path)
         # print(n)
+        print(n.parent().path())
         scene_viewer = toolutils.sceneViewer()
         scene_viewer.cd(n.parent().path())
         network_editor = hou.ui.paneTabOfType(hou.paneTabType.NetworkEditor)
