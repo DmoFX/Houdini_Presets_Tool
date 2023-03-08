@@ -192,13 +192,15 @@ class MainWidget(QWidget):
             s = self.node_path.split("\t")
             if len(s)>1:
                 self.node_path = " ".join(s)
-            print("dropEvent: ", self.node_path)
+                print("join",len(s),s)
+            print("dropEvent: ", self.node_path,len(self.node_path))
             if len(self.node_path)>0:
                 try:
-                    node = hou.node(self.node_path)
-                    node.setColor(hou.Color(0.384, 0.184, 0.329))
+                    # node = hou.node(self.node_path)
+                    # node.setColor(hou.Color(0.384, 0.184, 0.329))
                     pxmap = QPixmap("{}/accepted_icon.png".format(self.libs_path)).scaled(100,100)
                     self.ui.label_drop.setPixmap(pxmap)
+                    print("adding texture")
                     QTimer.singleShot(2000, self.__label_drop_change_text)
                 except:
                     pass
