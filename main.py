@@ -15,15 +15,24 @@ from PySide2.QtCore import Qt
 # pyside2-uic .\presets_ui.ui -o .\presets_ui.py
 
 def copyFileToHoudiniFolder(names):
-    for name in names: shutil.copyfile(f"./{name}",f"C:/Users/lllde/Documents/houdini19.5/python3.9libs/{name}")
+    # for name in names: shutil.copyfile(f"./{name}",f"C:/Users/lllde/Documents/houdini19.5/python3.9libs/{name}")
+    # Libs path should be the same Python version your current Houdini is using. Check Help/Houdini Info.
+    libs_path = "C:/Users/lllde/Documents/houdini19.5/python3.9libs/"
+    if os.path.isdir(libs_path+"icons") is False:
+        os.makedirs(libs_path+"icons")
+    for name in names: shutil.copyfile(f"./{name}", f"{libs_path}{name}")
 
 app = QApplication(sys.argv)
 #widget = widget.MainWidget()
 widget = presets_widget.MainWidget()
 widget.show()
 app.exec_()
-copyFileToHoudiniFolder(["widget.py","presets_widget.py","presets_ui.py","presets_list.py","accepted_icon.png","default_icon.gif"])
+copyFileToHoudiniFolder(["widget.py","presets_widget.py","presets_ui.py","presets_list.py","presets_screencapture.py",
+                         "icons/accepted_icon.png","icons/close.png","icons/close_focused.png","icons/cursor.png",
+                         "icons/default_icon.gif","icons/record.png","icons/record_anim.gif","icons/record_focused1.png",
+                         "icons/screenshot.png","icons/screenshot_focused1.png"])
 
+# Test for PresetsList
 # presets = PresetsList("D:/Docs/Work/Python/Projects/Presets")
 # print(presets.getUsers())
 # print(presets.getCategories(1))

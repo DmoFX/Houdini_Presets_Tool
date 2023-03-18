@@ -205,6 +205,13 @@ class PresetsList():
         n.setCurrent(True)
         # scene_viewer.setCurrentNode(n)
 
+    def getSetupDescription(self,setup_path):
+        # Read data from json file
+        with open(setup_path+"/info.json") as f:
+            data = json.load(f)
+        setup_description = data["description"]
+        return setup_description
+
 
 
 

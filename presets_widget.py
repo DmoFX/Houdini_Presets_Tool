@@ -36,6 +36,8 @@ class MainWidget(QWidget):
         self.__load_tree_widget()
         self.__load_list_widget()
         self.__load_label_info()
+        self.__load_label_screenshots()
+        self.__load_label_username()
 
         self.ui.listWidget.itemSelectionChanged.connect(self.__listWidget_clicked)
         self.ui.tabWidget.currentChanged.connect(self.__tabWidget_clicked)
@@ -110,14 +112,17 @@ class MainWidget(QWidget):
         self.type = self.ui.comboBox.currentIndex()
         self.__load_tree_widget()
     def __treeWidget_clicked(self):
+        print("Tree Widget clicked.")
         #print("Selected: ", self.ui.treeWidget.currentItem().text(0),self.ui.treeWidget.currentItem().parent().text(0))
         try:
             self.selected_setup = f"{self.ui.treeWidget.currentItem().user}/{self.ui.treeWidget.currentItem().category}/{self.ui.treeWidget.currentItem().setup}"
             print("Selected: ", self.selected_setup)
-            if len(self.ui.treeWidget.currentItem().setup)>0:
-                self.ui.label_username.setText("user: {}.".format(self.ui.treeWidget.currentItem().user))
-            else:
-                self.ui.label_username.setText("")
+            self.__load_label_info()
+            self.__load_label_username()
+            # if len(self.ui.treeWidget.currentItem().setup)>0:
+            #     self.ui.label_username.setText("user: {}.".format(self.ui.treeWidget.currentItem().user))
+            # else:
+            #     self.ui.label_username.setText("")
         except:
             pass
 
@@ -154,19 +159,39 @@ class MainWidget(QWidget):
         s = self.selected_setup.split("/")
         if len(s)==3 and len(s[2])>0:
             setup_path = self.folder+"/"+self.selected_setup
-            print("btn_load: ", self.selected_setup)
+            print("btn_load: ", self.selected_setup,setup_path)
             description = self.presets.readSetupAsCode(setup_path)
             self.ui.label_info.setText(description)
         else:
             QMessageBox.warning(self,"Warning!","Select a setup from the list please.",QMessageBox.Ok)
+
+    def __load_label_username(self):
+        try:
+            if len(self.ui.treeWidget.currentItem().setup) > 0:
+                self.ui.label_username.setText("user: {}.".format(self.ui.treeWidget.currentItem().user))
+            else:
+                self.ui.label_username.setText("user: ")
+        except:
+            pass
     def __load_label_info(self):
-        #movie = QMovie("D:/Docs/Work/Python/Projects/2.Houdini_Qt/default_icon.gif")
-        movie = QMovie("{}/default_icon.gif".format(self.libs_path))
-        movie.setScaledSize(QSize(300,150))
-        self.ui.label_info.setMovie(movie)
+        print("load info")
+        setup_path = self.folder + "/" + self.selected_setup
+        # Check if user selected setup in the treeWidget
+        s = self.selected_setup.split("/")
+        if len(s)==3 and len(s[2])>0:
+            setup_description = self.presets.getSetupDescription(setup_path)
+            self.ui.label_info.setText(setup_description)
+            self.ui.label_info.setAlignment(Qt.AlignTop)
+        else:
+            self.ui.label_info.setText("Preset Information")
+            self.ui.label_info.setAlignment(Qt.AlignCenter)
+    def __load_label_screenshots(self):
+        movie = QMovie("{}icons/default_icon.gif".format(self.libs_path))
+        movie.setScaledSize(QSize(300, 150))
+        self.ui.label_screenshots.setMovie(movie)
         movie.start()
-        # self.ui.label_info.setAlignment(Qt.AlignAbsolute)
-        self.ui.label_info.setAlignment(Qt.AlignTop)
+        # self.ui.label_screenshots.setAlignment(Qt.AlignAbsolute)
+        self.ui.label_screenshots.setAlignment(Qt.AlignTop)
 
     def dragEnterEvent(self, event):
         # print("dragEnter")
@@ -198,7 +223,7 @@ class MainWidget(QWidget):
                 try:
                     # node = hou.node(self.node_path)
                     # node.setColor(hou.Color(0.384, 0.184, 0.329))
-                    pxmap = QPixmap("{}/accepted_icon.png".format(self.libs_path)).scaled(100,100)
+                    pxmap = QPixmap("{}icons/accepted_icon.png".format(self.libs_path)).scaled(100,100)
                     self.ui.label_drop.setPixmap(pxmap)
                     print("adding texture")
                     QTimer.singleShot(2000, self.__label_drop_change_text)
