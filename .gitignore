@@ -1,6 +1,8 @@
 /widget.py
 /venv/*
 /venv_hython/*
+/debug.py
+/debug_signals.py
 
 /.idea/misc.xml
 /.idea/modules.xml

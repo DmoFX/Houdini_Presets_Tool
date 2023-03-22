@@ -1,12 +1,13 @@
-import sys,os,time
+import sys,os,time,re
 from presets_ui import Ui_Form
 from presets_list import PresetsList,PresetsItem
-from PySide2.QtWidgets import QApplication,QWidget,QLabel,QVBoxLayout,QPushButton,QDial,QTreeWidget, QTreeView,QTreeWidgetItem,QListWidgetItem,QMessageBox
+from presets_screencapture import ScreenCapture
+from PySide2.QtWidgets import QApplication,QMainWindow,QDialog,QWidget,QLabel,QVBoxLayout,QPushButton,QDial,QTreeWidget, QTreeView,QTreeWidgetItem,QListWidgetItem,QMessageBox
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtCore import QFile,QTimer
+from PySide2.QtCore import QFile,QTimer,QThreadPool,QRunnable,Signal
 from PySide2 import QtGui
-from PySide2.QtCore import Qt,QModelIndex,QSize
-from PySide2.QtGui import QMovie,QPixmap,QImage
+from PySide2.QtCore import Qt,QModelIndex,QSize,QEvent,QObject
+from PySide2.QtGui import QMovie,QPixmap,QImage,QMouseEvent
 try:
     import hou
 except:
@@ -44,6 +45,15 @@ class MainWidget(QWidget):
         self.ui.treeWidget.itemSelectionChanged.connect(self.__treeWidget_clicked)
         self.ui.btn_create.clicked.connect(self.__btn_create_clicked)
         self.ui.btn_load.clicked.connect(self.__btn_load_clicked)
+        self.ui.btn_r_record.clicked.connect(self.__btn_r_record_clicked)
+        self.ui.btn_r_next.clicked.connect(self.__btn_r_next_clicked)
+        self.ui.btn_r_back.clicked.connect(self.__btn_r_back_clicked)
+
+        self.screenshot_img = ""
+        # Install Event Filter to preview screenshots in a larger window.
+        self.ui.label_record.installEventFilter(self)
+        self.ui.label_record.setMouseTracking(True)
+
 
 
 
@@ -140,19 +150,17 @@ class MainWidget(QWidget):
             self.ui.treeWidget.sortItems(0,Qt.AscendingOrder)
     def __btn_create_clicked(self):
         # print("btn_create: ",self.ui.lineEdit_name.text(),)
-        s = self.ui.lineEdit_name.text().split("/")
-        setup_category, setup_name = s[0],s[1].lower()
-        unique_check = self.presets.isSetupUnigue(self.user,setup_category,setup_name)
         if len(self.ui.txtEdit_info.toPlainText())==0 or self.ui.txtEdit_info.toPlainText()=="Add description of your setup please.":
             QMessageBox.warning(self, "Attention!", "Add description of your setup please.", QMessageBox.Ok)
         else:
-            if len(setup_name) > 0 and unique_check is True and len(self.node_path)>0:
+            if self.__lineEdit_name_check() is True:
                 setup_path = "{}/{}/{}".format(self.folder,self.user,self.ui.lineEdit_name.text())
                 self.presets.writeSetupAsCode(setup_path,self.node_path,self.ui.txtEdit_info.toPlainText())
                 # print(setup_path)
                 self.ui.label_drop.setText("Drop your preset here.")
             else:
-                QMessageBox.warning(self,"Warning!","Setup name must be unique. Drag and drop your setup.",QMessageBox.Ok)
+                QMessageBox.warning(self,"Warning!","Setup name must be unique.\n"
+                                                    "Drag and drop your setup into the slot.",QMessageBox.Ok)
     def __btn_load_clicked(self):
         print("btn_load: ")
         # Create setup from data.
@@ -236,6 +244,92 @@ class MainWidget(QWidget):
             event.ignore()
     def __label_drop_change_text(self):
         self.ui.label_drop.setText("Setup is accepted.\n\n      Path: {}".format(self.node_path))
+
+    def __btn_r_record_clicked(self):
+        # print("btn_r_record clicked.")
+        if self.__lineEdit_name_check() is True:
+            folder_path = "{}/{}/{}/".format(self.folder, self.user, self.ui.lineEdit_name.text())
+            icons_path = f"{self.libs_path}icons/"
+            # Create the ScreenCapture main window
+            self.record_dialog = ScreenCapture(folder_path, icons_path)
+            self.record_dialog.show()
+
+            # Receive custom Signal from ScreenCapture class. Set QLabel with screenshot icon.
+            self.record_dialog.result.connect(self.label_record_setIcon)
+        else:
+            QMessageBox.warning(self, "Warning!", "Setup name must be unique and final before recording.\n"
+                                                  "Drag and drop your setup into the slot.",QMessageBox.Ok)
+    def label_record_setIcon(self,img_path):
+        # Receiving signal from ScreenCapture and setting QLabel with QIcon(img_path)
+        print("label_record, signal: ",img_path)
+        if len(img_path)>0 and os.path.isfile(img_path) is True:
+            pxmap = self.__scaled_pxmap(img_path,350)
+            self.ui.label_record.setPixmap(pxmap)
+            self.screenshot_img = img_path
+        self.ui.lineEdit_name.setDisabled(True)
+    def __lineEdit_name_check(self):
+        s = self.ui.lineEdit_name.text().split("/")
+        setup_category, setup_name = s[0], s[1].lower()
+        unique_check = self.presets.isSetupUnigue(self.user, setup_category, setup_name)
+        result = False
+        if len(setup_name) > 0 and unique_check is True and len(self.node_path) > 0:
+            result = True
+        return result
+
+    def __scaled_pxmap(self,img_path,width):
+        pxmap = QPixmap(img_path)
+        w = pxmap.size().width()
+        h = pxmap.size().height()
+        ratio = h/w
+        pxmap = QPixmap(img_path).scaled(width,int(width*ratio))
+        return pxmap
+    def __btn_r_next_clicked(self):
+        print("btn_r_Next")
+        self.r_icon_change("next")
+    def __btn_r_back_clicked(self):
+        print("btn_r_Back")
+        self.r_icon_change("back")
+    def r_icon_change(self,choice="next"):
+        if self.__lineEdit_name_check() is True:
+            folder_path = "{}/{}/{}/".format(self.folder, self.user, self.ui.lineEdit_name.text())
+            print(self.screenshot_img)
+            s = re.findall(r'\d+', self.screenshot_img)  # Returns list of numbers in a string: [0,5,3]
+            num = s[len(s) - 1]
+            # Based on choice will be Next or Back image
+            val = 1 if choice=="next" else -1
+            num_next = int(num) + val if int(num) + val > 0 else 0
+            print("num: ", num,num_next)
+            next_img = folder_path + f"screenshots/img_{num_next}.png"
+            print(next_img)
+            if os.path.isfile(next_img) is True:
+                pxmap = self.__scaled_pxmap(next_img, 350)
+                self.ui.label_record.setPixmap(pxmap)
+                self.screenshot_img = next_img
+    def eventFilter(self, src:QObject, e:QEvent):
+        if e.type()==QEvent.MouseButtonDblClick and src is self.ui.label_record:
+            print("double clicked on r_label")
+            if os.path.isfile(self.screenshot_img) is True:
+                print(self.screenshot_img)
+                # Create simple Dialog to preview image in full resolution.
+                pxmap = QPixmap(self.screenshot_img)
+                x,y = (pxmap.size().width(),pxmap.size().height())
+                self.preview = QDialog()
+                self.preview.resize(x,y)
+                self.preview.setWindowTitle("Screenshot Preview")
+                self.preview.setWindowFlag(Qt.WindowStaysOnTopHint,True)
+                self.preview.setWindowFlag(Qt.WindowContextHelpButtonHint,False)
+                label = QLabel()
+                label.setPixmap(pxmap)
+                layout = QVBoxLayout()
+                layout.addWidget(label)
+                self.preview.setLayout(layout)
+                self.preview.show()
+        return super(MainWidget,self).eventFilter(src,e)
+
+
+
+
+
 
 
 

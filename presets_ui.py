@@ -254,7 +254,7 @@ class Ui_Form(object):
 
         self.retranslateUi(Form)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(Form)
@@ -273,10 +273,16 @@ class Ui_Form(object):
         self.lineEdit_filter.setText("")
         self.lineEdit_filter.setPlaceholderText(QCoreApplication.translate("Form", u"Filter presets by name.", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.load_presets), QCoreApplication.translate("Form", u"Load Presets", None))
-        self.label_drop.setText(QCoreApplication.translate("Form", u"Drop your preset here.", None))
+#if QT_CONFIG(tooltip)
+        self.label_drop.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p><span style=\" font-size:8pt;\">Drag and drop subnetwork or mulitple nodes here. </span></p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_drop.setText(QCoreApplication.translate("Form", u"<html><head/><body><p><span style=\" font-size:10pt; text-decoration: underline;\">Drop your preset here.</span></p></body></html>", None))
         self.btn_create.setText(QCoreApplication.translate("Form", u"Create", None))
         self.label_txt2.setText(QCoreApplication.translate("Form", u"Category/Name:", None))
-        self.label_record.setText(QCoreApplication.translate("Form", u"Screenshots", None))
+#if QT_CONFIG(tooltip)
+        self.label_record.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p><span style=\" font-size:8pt;\">Add screenshots and short video recording to briefly show what your setup is doing.</span></p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_record.setText(QCoreApplication.translate("Form", u"<html><head/><body><p><span style=\" font-size:10pt; text-decoration: underline;\">Screenshots</span></p><p><br/></p><p>Before hit Record ensure that <span style=\" text-decoration: underline;\">Category/Name</span> is final</p><p>and won't change!</p></body></html>", None))
         self.btn_r_record.setText(QCoreApplication.translate("Form", u"Record", None))
         self.btn_r_next.setText(QCoreApplication.translate("Form", u"Next", None))
         self.btn_r_back.setText(QCoreApplication.translate("Form", u"Back", None))

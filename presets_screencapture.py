@@ -1,8 +1,10 @@
 import sys,os
+import traceback
+
 from PySide2.QtWidgets import QMainWindow, QMenuBar, QMenu, QStatusBar
 from PySide2.QtCore import *
 from PySide2 import QtCore
-from PySide2.QtCore import Qt,QTimer
+from PySide2.QtCore import Qt,QTimer,QThreadPool,QRunnable,QThread,Signal,Slot
 from PySide2.QtCore import QEvent
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
@@ -14,21 +16,51 @@ from PIL import Image, ImageGrab
 import pyautogui
 import mss
 
+class VideoSignal(QObject):
+    finished = Signal()
+    error = Signal(tuple)
+    result = Signal(object)
+    progress = Signal(int)
+class VideoThread(QRunnable):
+    def __init__(self, fn,*args, **kwargs):
+        super(VideoThread, self).__init__()
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+        self.signals = VideoSignal()
+        # # Add the callback to our kwargs
+        self.kwargs['progress_callback'] = self.signals.progress
+    @Slot()
+    def run(self):
+        try:
+            result = self.fn()
+        except:
+            traceback.print_exc()
+            exctype, value = sys.exc_info()[:2]
+            self.signals.error.emit((exctype, value, traceback.format_exc()))
+        else:
+            self.signals.result.emit(result)  # Return the result of the processing
+        finally:
+            self.signals.finished.emit()  # Done
+
+
 
 class ScreenCapture(QMainWindow):
+    result = Signal(str)
     def __init__(self,folder_path,icons_path):
         super(ScreenCapture, self).__init__()
+        self.folder_path = folder_path
+        self.icons_path = icons_path
         self.initUI()
         # Variables
         self.old_geo = self.geometry()
         self.P = self.pos()
         self.resized = 0
-        self.folder_path = folder_path
-        self.icons_path = icons_path
         self.screenshot_counter = 0
         self.stop_recording = False
         self.is_recording = False
         # self.setGeometry(100,0,700,500)
+        self.threadpool = QThreadPool()
 
 
     def initUI(self):
@@ -36,13 +68,13 @@ class ScreenCapture(QMainWindow):
         # self.setMouseTracking(True) # Tracks mouse only over the widget.
         widget = QWidget()
         # Create buttons: close, record, screenshot.
-        self.btn_close = QPushButton(QIcon("./icons/close.png"), "")
-        self.btn_record = QPushButton(QIcon("./icons/record.png"), "")
-        self.btn_screenshot = QPushButton(QIcon("./icons/screenshot.png"), "")
+        self.btn_close = QPushButton(QIcon(f"{self.icons_path}close.png"), "")
+        self.btn_record = QPushButton(QIcon(f"{self.icons_path}record.png"), "")
+        self.btn_screenshot = QPushButton(QIcon(f"{self.icons_path}screenshot.png"), "")
         # Create signals: pressed, released, clicked.
         self.btn_close.clicked.connect(self.clicked_btn_closed)
         # Add animated gif for Record button.
-        self.movie = QMovie("./icons/record_anim.gif")
+        self.movie = QMovie(f"{self.icons_path}record_anim.gif")
         # self.movie.start()
         self.movie.frameChanged.connect(self.update_movie)
         self.btn_record.pressed.connect(self.pressed_btn_record)
@@ -74,6 +106,7 @@ class ScreenCapture(QMainWindow):
         self.setAttribute(Qt.WA_NoSystemBackground, True)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setWindowFlag(Qt.WindowStaysOnTopHint)
+
         # Status bar. It creates a graping point fro resize.
         s = QStatusBar()
         self.setStatusBar(s)
@@ -82,7 +115,7 @@ class ScreenCapture(QMainWindow):
 
     def mouseDoubleClickEvent(self, e: QMouseEvent):
         # Go full screen if double clicked.
-        print("double")
+        # print("double")
         size = self.screen().size()
         if self.geometry().size() == size:
             self.setGeometry(self.old_geo)
@@ -91,12 +124,12 @@ class ScreenCapture(QMainWindow):
             self.setGeometry(QRect(0, 0, size.width(), size.height()))
 
     def mousePressEvent(self, event):
-        print("pressed")
+        # print("pressed")
         self.P = event.globalPos()
 
     def mouseMoveEvent(self, event):
-        print("move")
-        print(self.resized)
+        # print("move")
+        # print(self.resized)
         if self.resized == 0:
             delta = QPoint(event.globalPos() - self.P)
             self.move(self.x() + delta.x(), self.y() + delta.y())
@@ -133,7 +166,7 @@ class ScreenCapture(QMainWindow):
 
     def pressed_btn_record(self):
         # print("pressed")
-        self.btn_record.setIcon(QIcon("./icons/record_focused1.png"))
+        self.btn_record.setIcon(QIcon(f"{self.icons_path}record_focused1.png"))
 
     def released_btn_record(self):
         # print("pressed")
@@ -141,14 +174,19 @@ class ScreenCapture(QMainWindow):
 
     def clicked_btn_record(self):
         # print("clicked")
+        # We have to run long tasks on a separate Thread. Otherwise your Gui App will hang cause long tasks will be running
+        # on the same main Thread as Gui.
+        video_thread = VideoThread(self.record_video)
+        # video_thread.signals.finished.connect(self.test)
+        self.threadpool.start(video_thread)
+
+    def record_video(self):
         if self.is_recording is False:
             self.is_recording = True  # To prevent recording from interrupting.
-            # QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor))
             # Create screenshots folder if not exist.
             img_folder_path = self.folder_path + "screenshots/"
             if os.path.isdir(img_folder_path) is False:
                 os.makedirs(img_folder_path)
-            # self.setWindowFlag(Qt.Res)
             # PIL Image.grab(x,y,x+w,y+h)
             box = (self.x(), self.y(), self.x() + self.size().width(), self.y() + self.size().height())
 
@@ -184,7 +222,7 @@ class ScreenCapture(QMainWindow):
                     # print("end")
                     # self.video_output.release()
                     break
-                key = cv.waitKey(1)  # Without this loop will be infinite.
+                # key = cv.waitKey(1)  # Without this loop will be infinite.
             video_output.release()
 
     def pixmapToArray(self,pixmap:QPixmap):
@@ -208,8 +246,9 @@ class ScreenCapture(QMainWindow):
         # self.movie.start()
 
     def pressed_btn_screenshot(self):
-        self.btn_screenshot.setIcon(QIcon("./icons/screenshot_focused1.png"))
+        self.btn_screenshot.setIcon(QIcon(f"{self.icons_path}screenshot_focused1.png"))
         # print("Clicked screenshot.")
+        # print(f"{self.icons_path}screenshot_focused1.png")
         # Create screenshots folder if not exist.
         img_folder_path = self.folder_path+"screenshots/"
         if os.path.isdir(img_folder_path) is False:
@@ -239,17 +278,20 @@ class ScreenCapture(QMainWindow):
         image = Image.fromarray(image)
         image.save(file_name)
 
+        # Emit signal to main window with image path
+        # print("Taking screenshot. Emit singal:", file_name)
+        self.result.emit(file_name)
+
         self.screenshot_counter += 1
         self.show()
 
     def released_btn_screenshot(self):
-        self.btn_screenshot.setIcon(QIcon("./icons/screenshot.png"))
+        self.btn_screenshot.setIcon(QIcon(f"{self.icons_path}screenshot.png"))
 
     def clicked_btn_closed(self):
-        self.btn_close.setIcon(QIcon("./icons/close_focused.png"))
+        self.btn_close.setIcon(QIcon(f"{self.icons_path}close_focused.png"))
         self.stop_recording = True
         QTimer.singleShot(100,self.delayed_exit)
-
     def delayed_exit(self):
         self.close()
 
