@@ -30,7 +30,8 @@ app.exec_()
 copyFileToHoudiniFolder(["widget.py","presets_widget.py","presets_ui.py","presets_list.py","presets_screencapture.py",
                          "icons/accepted_icon.png","icons/close.png","icons/close_focused.png","icons/cursor.png",
                          "icons/default_icon.gif","icons/record.png","icons/record_anim.gif","icons/record_focused1.png",
-                         "icons/screenshot.png","icons/screenshot_focused1.png"])
+                         "icons/screenshot.png","icons/screenshot_focused1.png","icons/next_icon.png","icons/back_icon.png",
+                         "icons/record_video.png","icons/play_icon.png"])
 
 # Test for PresetsList
 # presets = PresetsList("D:/Docs/Work/Python/Projects/Presets")

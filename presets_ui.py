@@ -20,7 +20,7 @@ class Ui_Form(object):
         Form.resize(730, 655)
         self.tabWidget = QTabWidget(Form)
         self.tabWidget.setObjectName(u"tabWidget")
-        self.tabWidget.setGeometry(QRect(10, 30, 621, 551))
+        self.tabWidget.setGeometry(QRect(20, 40, 621, 551))
         self.load_presets = QWidget()
         self.load_presets.setObjectName(u"load_presets")
         self.gridLayoutWidget = QWidget(self.load_presets)
@@ -71,7 +71,7 @@ class Ui_Form(object):
         self.verticalLayout_2.addWidget(self.label_info)
 
         self.verticalLayout_2.setStretch(0, 10)
-        self.verticalLayout_2.setStretch(2, 3)
+        self.verticalLayout_2.setStretch(2, 5)
 
         self.verticalLayout.addLayout(self.verticalLayout_2)
 
@@ -205,6 +205,11 @@ class Ui_Form(object):
 
         self.horizontalLayout.addWidget(self.btn_r_record)
 
+        self.btn_r_back = QPushButton(self.gridLayoutWidget_2)
+        self.btn_r_back.setObjectName(u"btn_r_back")
+
+        self.horizontalLayout.addWidget(self.btn_r_back)
+
         self.btn_r_next = QPushButton(self.gridLayoutWidget_2)
         self.btn_r_next.setObjectName(u"btn_r_next")
         self.btn_r_next.setAutoExclusive(False)
@@ -212,20 +217,11 @@ class Ui_Form(object):
 
         self.horizontalLayout.addWidget(self.btn_r_next)
 
-        self.btn_r_back = QPushButton(self.gridLayoutWidget_2)
-        self.btn_r_back.setObjectName(u"btn_r_back")
-
-        self.horizontalLayout.addWidget(self.btn_r_back)
-
         self.btn_r_show = QPushButton(self.gridLayoutWidget_2)
         self.btn_r_show.setObjectName(u"btn_r_show")
 
         self.horizontalLayout.addWidget(self.btn_r_show)
 
-        self.horizontalLayout.setStretch(0, 2)
-        self.horizontalLayout.setStretch(1, 1)
-        self.horizontalLayout.setStretch(2, 1)
-        self.horizontalLayout.setStretch(3, 2)
 
         self.verticalLayout_3.addLayout(self.horizontalLayout)
 
@@ -254,7 +250,7 @@ class Ui_Form(object):
 
         self.retranslateUi(Form)
 
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(Form)
@@ -262,10 +258,22 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+#if QT_CONFIG(tooltip)
+        self.label_screenshots.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p>Double click for the full resolution image.</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
         self.label_screenshots.setText(QCoreApplication.translate("Form", u"Screenshots", None))
-        self.btn_l_show.setText(QCoreApplication.translate("Form", u"Show Video", None))
-        self.btn_l_back.setText(QCoreApplication.translate("Form", u"Next", None))
-        self.btn_l_next.setText(QCoreApplication.translate("Form", u"Back", None))
+#if QT_CONFIG(tooltip)
+        self.btn_l_show.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p>Show video.</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.btn_l_show.setText("")
+#if QT_CONFIG(tooltip)
+        self.btn_l_back.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p>Back image.</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.btn_l_back.setText("")
+#if QT_CONFIG(tooltip)
+        self.btn_l_next.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p>Next image.</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.btn_l_next.setText("")
         self.label_info.setText(QCoreApplication.translate("Form", u"Preset information.", None))
         self.btn_load.setText(QCoreApplication.translate("Form", u"Load", None))
         self.label_username.setText("")
@@ -283,10 +291,22 @@ class Ui_Form(object):
         self.label_record.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p><span style=\" font-size:8pt;\">Add screenshots and short video recording to briefly show what your setup is doing.</span></p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.label_record.setText(QCoreApplication.translate("Form", u"<html><head/><body><p><span style=\" font-size:10pt; text-decoration: underline;\">Screenshots</span></p><p><br/></p><p>Before hit Record ensure that <span style=\" text-decoration: underline;\">Category/Name</span> is final</p><p>and won't change!</p></body></html>", None))
-        self.btn_r_record.setText(QCoreApplication.translate("Form", u"Record", None))
-        self.btn_r_next.setText(QCoreApplication.translate("Form", u"Next", None))
-        self.btn_r_back.setText(QCoreApplication.translate("Form", u"Back", None))
-        self.btn_r_show.setText(QCoreApplication.translate("Form", u"Show", None))
+#if QT_CONFIG(tooltip)
+        self.btn_r_record.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p>Screen record dialog. You can capture screenshots or video.</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.btn_r_record.setText("")
+#if QT_CONFIG(tooltip)
+        self.btn_r_back.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p>Back image.</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.btn_r_back.setText("")
+#if QT_CONFIG(tooltip)
+        self.btn_r_next.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p>Next image.</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.btn_r_next.setText("")
+#if QT_CONFIG(tooltip)
+        self.btn_r_show.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p>Show video.</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.btn_r_show.setText("")
         self.txtEdit_info.setHtml(QCoreApplication.translate("Form", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"

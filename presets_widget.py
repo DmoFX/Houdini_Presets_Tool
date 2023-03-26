@@ -7,7 +7,7 @@ from PySide2.QtUiTools import QUiLoader
 from PySide2.QtCore import QFile,QTimer,QThreadPool,QRunnable,Signal
 from PySide2 import QtGui
 from PySide2.QtCore import Qt,QModelIndex,QSize,QEvent,QObject
-from PySide2.QtGui import QMovie,QPixmap,QImage,QMouseEvent
+from PySide2.QtGui import QMovie,QPixmap,QImage,QMouseEvent,QIcon
 try:
     import hou
 except:
@@ -48,15 +48,24 @@ class MainWidget(QWidget):
         self.ui.btn_r_record.clicked.connect(self.__btn_r_record_clicked)
         self.ui.btn_r_next.clicked.connect(self.__btn_r_next_clicked)
         self.ui.btn_r_back.clicked.connect(self.__btn_r_back_clicked)
+        self.ui.btn_l_next.clicked.connect(self.__btn_l_next_clicked)
+        self.ui.btn_l_back.clicked.connect(self.__btn_l_back_clicked)
 
         self.screenshot_img = ""
+        self.load_screenshot_img = ""
         # Install Event Filter to preview screenshots in a larger window.
         self.ui.label_record.installEventFilter(self)
+        self.ui.label_screenshots.installEventFilter(self)
         self.ui.label_record.setMouseTracking(True)
+        self.ui.label_screenshots.setAlignment(Qt.AlignTop)
 
-
-
-
+        self.ui.btn_l_next.setIcon(QIcon(f"{self.libs_path}icons/next_icon.png"))
+        self.ui.btn_r_next.setIcon(QIcon(f"{self.libs_path}icons/next_icon.png"))
+        self.ui.btn_l_back.setIcon(QIcon(f"{self.libs_path}icons/back_icon.png"))
+        self.ui.btn_r_back.setIcon(QIcon(f"{self.libs_path}icons/back_icon.png"))
+        self.ui.btn_r_record.setIcon(QIcon(f"{self.libs_path}icons/record_video.png"))
+        self.ui.btn_r_show.setIcon(QIcon(f"{self.libs_path}icons/play_icon.png"))
+        self.ui.btn_l_show.setIcon(QIcon(f"{self.libs_path}icons/play_icon.png"))
 
     # Load *.ui file as user interface. Autocompletion is not supported this way.
     # def __load_ui(self):
@@ -129,6 +138,7 @@ class MainWidget(QWidget):
             print("Selected: ", self.selected_setup)
             self.__load_label_info()
             self.__load_label_username()
+            self.__load_label_screenshots()
             # if len(self.ui.treeWidget.currentItem().setup)>0:
             #     self.ui.label_username.setText("user: {}.".format(self.ui.treeWidget.currentItem().user))
             # else:
@@ -182,7 +192,7 @@ class MainWidget(QWidget):
         except:
             pass
     def __load_label_info(self):
-        print("load info")
+        # print("load info")
         setup_path = self.folder + "/" + self.selected_setup
         # Check if user selected setup in the treeWidget
         s = self.selected_setup.split("/")
@@ -194,12 +204,7 @@ class MainWidget(QWidget):
             self.ui.label_info.setText("Preset Information")
             self.ui.label_info.setAlignment(Qt.AlignCenter)
     def __load_label_screenshots(self):
-        movie = QMovie("{}icons/default_icon.gif".format(self.libs_path))
-        movie.setScaledSize(QSize(300, 150))
-        self.ui.label_screenshots.setMovie(movie)
-        movie.start()
-        # self.ui.label_screenshots.setAlignment(Qt.AlignAbsolute)
-        self.ui.label_screenshots.setAlignment(Qt.AlignTop)
+        self.load_default_gif()
 
     def dragEnterEvent(self, event):
         # print("dragEnter")
@@ -290,41 +295,111 @@ class MainWidget(QWidget):
         print("btn_r_Back")
         self.r_icon_change("back")
     def r_icon_change(self,choice="next"):
+        # print("----------- r_icon_change ----------")
         if self.__lineEdit_name_check() is True:
             folder_path = "{}/{}/{}/".format(self.folder, self.user, self.ui.lineEdit_name.text())
-            print(self.screenshot_img)
+            # print(self.screenshot_img)
             s = re.findall(r'\d+', self.screenshot_img)  # Returns list of numbers in a string: [0,5,3]
             num = s[len(s) - 1]
             # Based on choice will be Next or Back image
             val = 1 if choice=="next" else -1
-            num_next = int(num) + val if int(num) + val > 0 else 0
-            print("num: ", num,num_next)
+            num_next = int(num) + val if int(num) + val > 0 else 0 # clamp below 0
+            # print("num: ", num, num_next)
+            count = self.get_screenshot_count(f"{folder_path}screenshots/") -1
+            num_next = num_next if num_next < count else count  # clamp above max
             next_img = folder_path + f"screenshots/img_{num_next}.png"
-            print(next_img)
+            # print(next_img)
             if os.path.isfile(next_img) is True:
                 pxmap = self.__scaled_pxmap(next_img, 350)
                 self.ui.label_record.setPixmap(pxmap)
                 self.screenshot_img = next_img
     def eventFilter(self, src:QObject, e:QEvent):
         if e.type()==QEvent.MouseButtonDblClick and src is self.ui.label_record:
-            print("double clicked on r_label")
-            if os.path.isfile(self.screenshot_img) is True:
-                print(self.screenshot_img)
-                # Create simple Dialog to preview image in full resolution.
-                pxmap = QPixmap(self.screenshot_img)
-                x,y = (pxmap.size().width(),pxmap.size().height())
-                self.preview = QDialog()
-                self.preview.resize(x,y)
-                self.preview.setWindowTitle("Screenshot Preview")
-                self.preview.setWindowFlag(Qt.WindowStaysOnTopHint,True)
-                self.preview.setWindowFlag(Qt.WindowContextHelpButtonHint,False)
-                label = QLabel()
-                label.setPixmap(pxmap)
-                layout = QVBoxLayout()
-                layout.addWidget(label)
-                self.preview.setLayout(layout)
-                self.preview.show()
+            print("double clicked on label_record")
+            self.preview_full_size_icon(self.screenshot_img)
+        if e.type()==QEvent.MouseButtonDblClick and src is self.ui.label_screenshots:
+            print("double clicked on label_screenshots")
+            self.preview_full_size_icon(self.load_screenshot_img)
         return super(MainWidget,self).eventFilter(src,e)
+    def preview_full_size_icon(self,img_path):
+        if os.path.isfile(img_path) is True:
+            print(img_path)
+            # Create simple Dialog to preview image in full resolution.
+            pxmap = QPixmap(img_path)
+            x, y = (pxmap.size().width(), pxmap.size().height())
+            self.preview = QDialog()
+            self.preview.resize(x, y)
+            self.preview.setWindowTitle("Screenshot Preview")
+            self.preview.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+            self.preview.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+            label = QLabel()
+            label.setPixmap(pxmap)
+            layout = QVBoxLayout()
+            layout.addWidget(label)
+            self.preview.setLayout(layout)
+            self.preview.show()
+    def get_screenshot_count(sel,path):
+        # print("----------- get_screenshot_count ----------")
+        count = 0
+        for f in os.listdir(path):
+            if f.endswith(".png"):
+                count +=1
+        # print("total count: ",count)
+        return count
+
+    def __load_label_screenshots(self):
+        print("----------- __load_label_screenshots ----------")
+        setup_path = self.folder + "/" + self.selected_setup
+        if self.treeWidget_selected_setup_check() is True:
+            self.load_screenshot_img = setup_path + f"/screenshots/img_0.png"
+            if os.path.isfile(self.load_screenshot_img) is True:
+                print("Yes: ",self.load_screenshot_img)
+                pxmap = self.__scaled_pxmap(self.load_screenshot_img, 300)
+                self.ui.label_screenshots.setPixmap(pxmap)
+        else:
+            print("No: ","{}icons/default_icon.gif".format(self.libs_path))
+            self.load_default_gif()
+    def load_default_gif(self):
+        movie = QMovie("{}icons/default_icon.gif".format(self.libs_path))
+        movie.setScaledSize(QSize(300, 150))
+        self.ui.label_screenshots.setMovie(movie)
+        movie.start()
+        # self.ui.label_screenshots.setAlignment(Qt.AlignAbsolute)
+        # self.ui.label_screenshots.setAlignment(Qt.AlignTop)
+    def treeWidget_selected_setup_check(self):
+        # Check if user selected setup in the treeWidget
+        result = False
+        s = self.selected_setup.split("/")
+        if len(s) == 3 and len(s[2]) > 0:
+            result = True
+        return result
+    def __btn_l_next_clicked(self):
+        print("----------- __btn_l_next_clicked ----------")
+        self.l_icon_change("next")
+    def __btn_l_back_clicked(self):
+        print("----------- __btn_l_back_clicked ----------")
+        self.l_icon_change("back")
+    def l_icon_change(self,choice="next"):
+        folder_path = self.folder + "/" + self.selected_setup+"/"
+        if self.treeWidget_selected_setup_check() and os.path.isfile(self.load_screenshot_img):
+            # img_path = setup_path + f"/screenshots/img_0.png"
+            print("current img_path: ",self.load_screenshot_img)
+            s = re.findall(r'\d+', self.load_screenshot_img)  # Returns list of numbers in a string: [0,5,3]
+            num = s[len(s) - 1]
+            # Based on choice will be Next or Back image
+            val = 1 if choice == "next" else -1
+            num_next = int(num) + val if int(num) + val > 0 else 0  # clamp below 0
+            # print("num: ", num, num_next)
+            count = self.get_screenshot_count(f"{folder_path}screenshots/") - 1
+            num_next = num_next if num_next < count else count  # clamp above max
+            next_img = folder_path + f"screenshots/img_{num_next}.png"
+            # print(next_img)
+            if os.path.isfile(next_img) is True:
+                pxmap = self.__scaled_pxmap(next_img, 300)
+                self.ui.label_screenshots.setPixmap(pxmap)
+                self.load_screenshot_img = next_img
+
+
 
 
 
