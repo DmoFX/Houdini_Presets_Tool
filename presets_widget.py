@@ -1,10 +1,10 @@
-import sys,os,time,re
+import sys,os,time,re,subprocess
 from presets_ui import Ui_Form
 from presets_list import PresetsList,PresetsItem
 from presets_screencapture import ScreenCapture
 from PySide2.QtWidgets import QApplication,QMainWindow,QDialog,QWidget,QLabel,QVBoxLayout,QPushButton,QDial,QTreeWidget, QTreeView,QTreeWidgetItem,QListWidgetItem,QMessageBox
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtCore import QFile,QTimer,QThreadPool,QRunnable,Signal
+from PySide2.QtCore import QFile, QTimer, QThreadPool, QRunnable, Signal, QCoreApplication
 from PySide2 import QtGui
 from PySide2.QtCore import Qt,QModelIndex,QSize,QEvent,QObject
 from PySide2.QtGui import QMovie,QPixmap,QImage,QMouseEvent,QIcon
@@ -22,6 +22,7 @@ class MainWidget(QWidget):
         # print(self.label.text())
         self.libs_path = "C:/Users/lllde/Documents/houdini19.5/python3.9libs/"
         self.folder = "D:/Docs/Work/Python/Projects/Presets"
+        self.vlc_path = "C:/Program Files/VideoLAN/VLC/vlc.exe"
         self.user = os.environ.get("USERNAME")
         self.presets = PresetsList(self.folder)
         self.node_path = ""
@@ -50,6 +51,9 @@ class MainWidget(QWidget):
         self.ui.btn_r_back.clicked.connect(self.__btn_r_back_clicked)
         self.ui.btn_l_next.clicked.connect(self.__btn_l_next_clicked)
         self.ui.btn_l_back.clicked.connect(self.__btn_l_back_clicked)
+        self.ui.btn_l_show.clicked.connect(self.__btn_l_show_clicked)
+        self.ui.btn_r_show.clicked.connect(self.__btn_r_show_clicked)
+        self.ui.lineEdit_filter.editingFinished.connect(self.__lineEdit_filter_edited)
 
         self.screenshot_img = ""
         self.load_screenshot_img = ""
@@ -167,7 +171,14 @@ class MainWidget(QWidget):
                 setup_path = "{}/{}/{}".format(self.folder,self.user,self.ui.lineEdit_name.text())
                 self.presets.writeSetupAsCode(setup_path,self.node_path,self.ui.txtEdit_info.toPlainText())
                 # print(setup_path)
+
+                # Restore default look
                 self.ui.label_drop.setText("Drop your preset here.")
+                self.ui.lineEdit_name.setEnabled(True)
+                self.ui.txtEdit_info.setText("")
+                self.ui.label_record.setText(u"<html><head/><body><p><span style=\" font-size:10pt; text-decoration: underline;\">Screenshots</span></p><p><br/></p><p>Before hit Record ensure that <span style=\" text-decoration: underline;\">Category/Name</span> is final</p><p>and won't change!</p></body></html>")
+                self.screenshot_img = ""
+                self.ui.lineEdit_name.setText(f"{self.ui.listWidget.currentItem().text()}/")
             else:
                 QMessageBox.warning(self,"Warning!","Setup name must be unique.\n"
                                                     "Drag and drop your setup into the slot.",QMessageBox.Ok)
@@ -398,6 +409,29 @@ class MainWidget(QWidget):
                 pxmap = self.__scaled_pxmap(next_img, 300)
                 self.ui.label_screenshots.setPixmap(pxmap)
                 self.load_screenshot_img = next_img
+    def __btn_l_show_clicked(self):
+        print("----------- __btn_l_show_clicked ----------")
+        video_path = self.folder + "/" + self.selected_setup + "/screenshots/video.mp4"
+        if self.treeWidget_selected_setup_check() and os.path.isfile(video_path):
+            self.open_video_in_VLC(video_path)
+    def __btn_r_show_clicked(self):
+        print("----------- __btn_r_show_clicked ----------")
+        if self.__lineEdit_name_check() is True:
+            folder_path = "{}/{}/{}".format(self.folder, self.user, self.ui.lineEdit_name.text())
+            video_path = folder_path + "/screenshots/video.mp4"
+            if os.path.isfile(video_path):
+                self.open_video_in_VLC(video_path)
+
+    def open_video_in_VLC(self,video_path):
+        # print(video_path)
+        # video_path = "D:/Docs/Work/Python/Projects/Output/ScreenCapture Output/screenshots/video.mp4"
+        video_path = video_path.replace("/", "\\")
+        # video_path = "D:\\Docs\\Work\\Python\\Projects\\Output\\ScreenCapture Output\\screenshots\\video.mp4"
+        # print(video_path)
+        p = subprocess.Popen([self.vlc_path, video_path, "--loop"])
+    def __lineEdit_filter_edited(self):
+        print("----------- __lineEdit_filter_clicked ----------")
+
 
 
 
