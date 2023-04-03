@@ -4,7 +4,7 @@ from presets_list import PresetsList,PresetsItem
 from presets_screencapture import ScreenCapture
 from PySide2.QtWidgets import QApplication,QMainWindow,QDialog,QWidget,QLabel,QVBoxLayout,QPushButton,QDial,QTreeWidget, QTreeView,QTreeWidgetItem,QListWidgetItem,QMessageBox
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtCore import QFile, QTimer, QThreadPool, QRunnable, Signal, QCoreApplication
+from PySide2.QtCore import QFile, QTimer, QThreadPool, QRunnable, Signal, QCoreApplication,QModelIndex
 from PySide2 import QtGui
 from PySide2.QtCore import Qt,QModelIndex,QSize,QEvent,QObject
 from PySide2.QtGui import QMovie,QPixmap,QImage,QMouseEvent,QIcon
@@ -81,6 +81,7 @@ class MainWidget(QWidget):
     #     loader.load(ui_file, self)
     #     ui_file.close()
     def __load_tree_widget(self):
+        # print("----------- __load_tree_widget ----------")
         #self.ui.treeWidget.setHeaderLabels(["Presets"])
         #self.ui.treeWidget.setHeaderLabels(["presets","user"])
         self.ui.treeWidget.setHeaderHidden(True)
@@ -89,19 +90,20 @@ class MainWidget(QWidget):
         # tree_widget_item1.addChild(QTreeWidgetItem(["rbd_setup"]))
         self.ui.treeWidget.clear()
         categories = self.presets.getCategories(self.type)
+        # print("categories: ",categories)
         users = self.presets.getUsers()
         # print("-------------------")
         if self.type == 0:
-            #print(f"{self.user}")
+            # print(f"{self.user}")
             self.__createTreeWidgetItems([self.user], categories)
         elif self.type == 1:
             users = self.presets.getShowUsers()
-            #print("show_users:",users)
+            # print("show_users:",users)
             self.__createTreeWidgetItems(users,categories)
         elif self.type == 2:
             users = self.presets.getUsers()
             self.__createTreeWidgetItems(users,categories)
-        #print(categories)
+        # print(categories)
 
     def __load_list_widget(self):
         #categories = ["category_"+str(s) for s in range(30)]
@@ -359,7 +361,7 @@ class MainWidget(QWidget):
         return count
 
     def __load_label_screenshots(self):
-        print("----------- __load_label_screenshots ----------")
+        # print("----------- __load_label_screenshots ----------")
         setup_path = self.folder + "/" + self.selected_setup
         if self.treeWidget_selected_setup_check() is True:
             self.load_screenshot_img = setup_path + f"/screenshots/img_0.png"
@@ -368,7 +370,7 @@ class MainWidget(QWidget):
                 pxmap = self.__scaled_pxmap(self.load_screenshot_img, 300)
                 self.ui.label_screenshots.setPixmap(pxmap)
         else:
-            print("No: ","{}icons/default_icon.gif".format(self.libs_path))
+            # print("No: ","{}icons/default_icon.gif".format(self.libs_path))
             self.load_default_gif()
     def load_default_gif(self):
         movie = QMovie("{}icons/default_icon.gif".format(self.libs_path))
@@ -430,7 +432,24 @@ class MainWidget(QWidget):
         # print(video_path)
         p = subprocess.Popen([self.vlc_path, video_path, "--loop"])
     def __lineEdit_filter_edited(self):
-        print("----------- __lineEdit_filter_clicked ----------")
+        # print("----------- __lineEdit_filter_clicked ----------")
+        input_name = self.ui.lineEdit_filter.text()
+        # print("input: ",input_name)
+        # print(self.presets.data_structure)
+        # print("..................")
+        if len(input_name)>0:
+            self.presets.data_structure = self.presets.filteredData(input_name)
+        else:
+            self.presets.data_structure = self.presets.updateData()
+        self.__load_tree_widget()
+        self.ui.treeWidget.expandAll()
+        # Select first found item.
+        try:
+            self.ui.treeWidget.setCurrentItem(self.ui.treeWidget.topLevelItem(0).child(0))
+        except:
+            pass
+        # print("..................")
+        # print(self.presets.data_structure)
 
 
 

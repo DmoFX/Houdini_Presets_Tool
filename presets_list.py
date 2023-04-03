@@ -212,6 +212,25 @@ class PresetsList():
         setup_description = data["description"]
         return setup_description
 
+    def filteredData(self,input_name):
+        user_list = os.listdir(self.dir_path)
+        data_structure = {}
+        for user in user_list:
+            category_list = os.listdir(self.dir_path + "/" + user)
+            # print(f"{user}: {category_list}")
+            cat_list = []
+            for category in category_list:
+                if os.path.isdir(self.dir_path + "/" + user + "/" + category):
+                    setups = os.listdir(self.dir_path + "/" + user + "/" + category)
+                    # print(f"{user}: {category} : {setups}")
+                    filtered_setups = [f for f in setups if f.find(input_name)>=0]
+                    if len(filtered_setups)>0:
+                        cat_list.append([category, filtered_setups])
+            if len(cat_list)>0:
+                data_structure[user] = cat_list
+        # print(data_structure)
+        return data_structure
+
 
 
 
