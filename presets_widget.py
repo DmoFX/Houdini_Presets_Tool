@@ -1,8 +1,8 @@
-import sys,os,time,re,subprocess
+import sys,os,time,re,subprocess,shutil
 from presets_ui import Ui_Form
 from presets_list import PresetsList,PresetsItem
 from presets_screencapture import ScreenCapture
-from PySide2.QtWidgets import QApplication,QMainWindow,QDialog,QWidget,QLabel,QVBoxLayout,QPushButton,QDial,QTreeWidget, QTreeView,QTreeWidgetItem,QListWidgetItem,QMessageBox
+from PySide2.QtWidgets import QApplication,QMainWindow,QDialog,QWidget,QLabel,QVBoxLayout,QPushButton,QDial,QTreeWidget, QTreeView,QTreeWidgetItem,QListWidgetItem,QMessageBox,QAction,QMenu
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtCore import QFile, QTimer, QThreadPool, QRunnable, Signal, QCoreApplication,QModelIndex
 from PySide2 import QtGui
@@ -20,9 +20,11 @@ class MainWidget(QWidget):
         # self.__load_ui() # Autocompletion won't work this way.
         # self.label = self.findChild(QLabel,"label")
         # print(self.label.text())
-        self.libs_path = "C:/Users/lllde/Documents/houdini19.5/python3.9libs/"
-        self.folder = "D:/Docs/Work/Python/Projects/Presets"
-        self.vlc_path = "C:/Program Files/VideoLAN/VLC/vlc.exe"
+        # ------------------------  UPDATE  THIS INFO  ------------------------------#
+        self.libs_path = "C:/Users/lllde/Documents/houdini19.5/python3.9libs/"  # Path is used to load icons.
+        self.folder = "D:/Docs/Work/Python/Projects/Presets"  # Path is used to store presets data on disk.
+        self.vlc_path = "C:/Program Files/VideoLAN/VLC/vlc.exe"  # Direct path to VLC video launcher.
+        # ---------------------------------------------------------------------------#
         self.user = os.environ.get("USERNAME")
         self.presets = PresetsList(self.folder)
         self.node_path = ""
@@ -38,12 +40,14 @@ class MainWidget(QWidget):
         self.__load_tree_widget()
         self.__load_list_widget()
         self.__load_label_info()
+        self.image_width = int(self.ui.label_screenshots.width())  # Screenshot image size
         self.__load_label_screenshots()
         self.__load_label_username()
 
         self.ui.listWidget.itemSelectionChanged.connect(self.__listWidget_clicked)
         self.ui.tabWidget.currentChanged.connect(self.__tabWidget_clicked)
         self.ui.treeWidget.itemSelectionChanged.connect(self.__treeWidget_clicked)
+        self.ui.treeWidget.itemClicked.connect(self.__onItemClicked)  # The same action as if tree item was selected.
         self.ui.btn_create.clicked.connect(self.__btn_create_clicked)
         self.ui.btn_load.clicked.connect(self.__btn_load_clicked)
         self.ui.btn_r_record.clicked.connect(self.__btn_r_record_clicked)
@@ -70,6 +74,11 @@ class MainWidget(QWidget):
         self.ui.btn_r_record.setIcon(QIcon(f"{self.libs_path}icons/record_video.png"))
         self.ui.btn_r_show.setIcon(QIcon(f"{self.libs_path}icons/play_icon.png"))
         self.ui.btn_l_show.setIcon(QIcon(f"{self.libs_path}icons/play_icon.png"))
+
+        # Add context menu.
+        self.ui.treeWidget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ui.treeWidget.customContextMenuRequested.connect(self.__treeWidget_context_menu)
+
 
     # Load *.ui file as user interface. Autocompletion is not supported this way.
     # def __load_ui(self):
@@ -113,7 +122,10 @@ class MainWidget(QWidget):
             self.ui.listWidget.addItem(QListWidgetItem(category))
         self.ui.listWidget.setCurrentRow(0)
         self.ui.listWidget.sortItems(Qt.AscendingOrder)
-        self.ui.lineEdit_name.setText(f"{self.ui.listWidget.currentItem().text()}/")
+        try:
+            self.ui.lineEdit_name.setText(f"{self.ui.listWidget.currentItem().text()}/")
+        except:
+            pass
 
     # Return name of the category in the listWidget
     def __listWidget_clicked(self):
@@ -137,13 +149,14 @@ class MainWidget(QWidget):
         self.type = self.ui.comboBox.currentIndex()
         self.__load_tree_widget()
     def __treeWidget_clicked(self):
-        print("Tree Widget clicked.")
+        print("Tree Widget selected.")
         #print("Selected: ", self.ui.treeWidget.currentItem().text(0),self.ui.treeWidget.currentItem().parent().text(0))
         try:
             self.selected_setup = f"{self.ui.treeWidget.currentItem().user}/{self.ui.treeWidget.currentItem().category}/{self.ui.treeWidget.currentItem().setup}"
             print("Selected: ", self.selected_setup)
             self.__load_label_info()
             self.__load_label_username()
+            # self.__load_label_screenshots(int(self.width()*.5))
             self.__load_label_screenshots()
             # if len(self.ui.treeWidget.currentItem().setup)>0:
             #     self.ui.label_username.setText("user: {}.".format(self.ui.treeWidget.currentItem().user))
@@ -152,6 +165,10 @@ class MainWidget(QWidget):
         except:
             pass
 
+    def __onItemClicked(self,it,col):
+        print("----------- treeWidget Item Clicked ----------")
+        # print(it,col,it.text(col))
+        self.__treeWidget_clicked()
     def __createTreeWidgetItems(self,users,categories):
         for category in categories:
             # item = QTreeWidgetItem([category])
@@ -216,8 +233,6 @@ class MainWidget(QWidget):
         else:
             self.ui.label_info.setText("Preset Information")
             self.ui.label_info.setAlignment(Qt.AlignCenter)
-    def __load_label_screenshots(self):
-        self.load_default_gif()
 
     def dragEnterEvent(self, event):
         # print("dragEnter")
@@ -281,7 +296,7 @@ class MainWidget(QWidget):
         # Receiving signal from ScreenCapture and setting QLabel with QIcon(img_path)
         print("label_record, signal: ",img_path)
         if len(img_path)>0 and os.path.isfile(img_path) is True:
-            pxmap = self.__scaled_pxmap(img_path,350)
+            pxmap = self.__scaled_pxmap(img_path,self.image_width)
             self.ui.label_record.setPixmap(pxmap)
             self.screenshot_img = img_path
         self.ui.lineEdit_name.setDisabled(True)
@@ -323,7 +338,7 @@ class MainWidget(QWidget):
             next_img = folder_path + f"screenshots/img_{num_next}.png"
             # print(next_img)
             if os.path.isfile(next_img) is True:
-                pxmap = self.__scaled_pxmap(next_img, 350)
+                pxmap = self.__scaled_pxmap(next_img, self.image_width)
                 self.ui.label_record.setPixmap(pxmap)
                 self.screenshot_img = next_img
     def eventFilter(self, src:QObject, e:QEvent):
@@ -333,7 +348,12 @@ class MainWidget(QWidget):
         if e.type()==QEvent.MouseButtonDblClick and src is self.ui.label_screenshots:
             print("double clicked on label_screenshots")
             self.preview_full_size_icon(self.load_screenshot_img)
+        if e.type()==QEvent.Resize:
+            # Update Image size if widget is resized.
+            self.image_width = int(self.width()*.5)
+            self.__load_label_screenshots()
         return super(MainWidget,self).eventFilter(src,e)
+
     def preview_full_size_icon(self,img_path):
         if os.path.isfile(img_path) is True:
             print(img_path)
@@ -366,17 +386,22 @@ class MainWidget(QWidget):
         if self.treeWidget_selected_setup_check() is True:
             self.load_screenshot_img = setup_path + f"/screenshots/img_0.png"
             if os.path.isfile(self.load_screenshot_img) is True:
-                print("Yes: ",self.load_screenshot_img)
-                pxmap = self.__scaled_pxmap(self.load_screenshot_img, 300)
+                # print("Yes: ",self.load_screenshot_img)
+                # width = 300
+                pxmap = self.__scaled_pxmap(self.load_screenshot_img, self.image_width)
                 self.ui.label_screenshots.setPixmap(pxmap)
+            else:
+                self.load_default_gif()
         else:
             # print("No: ","{}icons/default_icon.gif".format(self.libs_path))
             self.load_default_gif()
     def load_default_gif(self):
+        # print("----------- load_default_gif ----------")
         movie = QMovie("{}icons/default_icon.gif".format(self.libs_path))
-        movie.setScaledSize(QSize(300, 150))
+        movie.setScaledSize(QSize(self.image_width, int(self.image_width*.5)))
         self.ui.label_screenshots.setMovie(movie)
         movie.start()
+
         # self.ui.label_screenshots.setAlignment(Qt.AlignAbsolute)
         # self.ui.label_screenshots.setAlignment(Qt.AlignTop)
     def treeWidget_selected_setup_check(self):
@@ -408,7 +433,7 @@ class MainWidget(QWidget):
             next_img = folder_path + f"screenshots/img_{num_next}.png"
             # print(next_img)
             if os.path.isfile(next_img) is True:
-                pxmap = self.__scaled_pxmap(next_img, 300)
+                pxmap = self.__scaled_pxmap(next_img, self.image_width)
                 self.ui.label_screenshots.setPixmap(pxmap)
                 self.load_screenshot_img = next_img
     def __btn_l_show_clicked(self):
@@ -450,6 +475,44 @@ class MainWidget(QWidget):
             pass
         # print("..................")
         # print(self.presets.data_structure)
+    def __treeWidget_context_menu(self,pos):
+        remove_action = QAction("Remove.")
+        remove_action.triggered.connect(self.__treeWidget_remove_setup)
+
+        menu = QMenu(self.ui.treeWidget)
+        menu.addAction(remove_action)
+        menu.exec_(self.ui.treeWidget.mapToGlobal(pos))
+    def __treeWidget_remove_setup(self):
+        # print("----------- __remove_setup ----------")
+        # print(self.selected_setup)
+        s = self.selected_setup.split("/")
+        if len(s)==3 and len(s[2])>0:
+            setup_path = self.folder + "/" + self.selected_setup
+            # print(setup_path)
+            if s[0]==self.user:
+                self.remove_setup(setup_path)
+            else:
+                QMessageBox.warning(self, "Warning!", "You can remove your setups only.", QMessageBox.Ok)
+        else:
+            setup_path = self.folder + "/"+ f"{self.user}/" + s[1]
+            self.remove_setup(setup_path,True)
+    def remove_setup(self,setup_path,is_folder=False):
+        # print("----------- remove_setup ----------")
+        # print("Removing setup: ",setup_path)
+        # Remove setup folder and all files inside.
+        shutil.rmtree(setup_path,ignore_errors=True)
+        # Remove/hide item from treeWidget
+        if is_folder is not True:
+            root = self.ui.treeWidget.invisibleRootItem()
+            # root.removeChild(self.ui.treeWidget.currentItem())
+            for item in self.ui.treeWidget.selectedItems():
+                (item.parent() or root).removeChild(item)
+        else:
+            self.presets.data_structure = self.presets.updateData()
+            self.__load_tree_widget()
+
+
+
 
 
 

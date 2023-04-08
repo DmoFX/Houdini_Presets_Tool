@@ -18,26 +18,25 @@ class Ui_Form(object):
         if not Form.objectName():
             Form.setObjectName(u"Form")
         Form.resize(730, 655)
+        self.horizontalLayout_5 = QHBoxLayout(Form)
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.tabWidget = QTabWidget(Form)
         self.tabWidget.setObjectName(u"tabWidget")
-        self.tabWidget.setGeometry(QRect(20, 40, 621, 551))
         self.load_presets = QWidget()
         self.load_presets.setObjectName(u"load_presets")
-        self.gridLayoutWidget = QWidget(self.load_presets)
-        self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
-        self.gridLayoutWidget.setGeometry(QRect(0, 0, 611, 521))
-        self.gridLayout = QGridLayout(self.gridLayoutWidget)
+        self.verticalLayout_4 = QVBoxLayout(self.load_presets)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.gridLayout = QGridLayout()
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setHorizontalSpacing(10)
         self.gridLayout.setVerticalSpacing(5)
-        self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout = QVBoxLayout()
         self.verticalLayout.setSpacing(2)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout_2 = QVBoxLayout()
         self.verticalLayout_2.setSpacing(0)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.label_screenshots = QLabel(self.gridLayoutWidget)
+        self.label_screenshots = QLabel(self.load_presets)
         self.label_screenshots.setObjectName(u"label_screenshots")
         self.label_screenshots.setAlignment(Qt.AlignCenter)
 
@@ -46,17 +45,17 @@ class Ui_Form(object):
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setSpacing(6)
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.btn_l_show = QPushButton(self.gridLayoutWidget)
+        self.btn_l_show = QPushButton(self.load_presets)
         self.btn_l_show.setObjectName(u"btn_l_show")
 
         self.horizontalLayout_4.addWidget(self.btn_l_show)
 
-        self.btn_l_back = QPushButton(self.gridLayoutWidget)
+        self.btn_l_back = QPushButton(self.load_presets)
         self.btn_l_back.setObjectName(u"btn_l_back")
 
         self.horizontalLayout_4.addWidget(self.btn_l_back)
 
-        self.btn_l_next = QPushButton(self.gridLayoutWidget)
+        self.btn_l_next = QPushButton(self.load_presets)
         self.btn_l_next.setObjectName(u"btn_l_next")
 
         self.horizontalLayout_4.addWidget(self.btn_l_next)
@@ -64,7 +63,7 @@ class Ui_Form(object):
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_4)
 
-        self.label_info = QLabel(self.gridLayoutWidget)
+        self.label_info = QLabel(self.load_presets)
         self.label_info.setObjectName(u"label_info")
         self.label_info.setAlignment(Qt.AlignCenter)
 
@@ -75,8 +74,9 @@ class Ui_Form(object):
 
         self.verticalLayout.addLayout(self.verticalLayout_2)
 
-        self.btn_load = QPushButton(self.gridLayoutWidget)
+        self.btn_load = QPushButton(self.load_presets)
         self.btn_load.setObjectName(u"btn_load")
+        self.btn_load.setStyleSheet(u"")
 
         self.verticalLayout.addWidget(self.btn_load)
 
@@ -87,7 +87,7 @@ class Ui_Form(object):
 
         self.gridLayout.addItem(self.horizontalSpacer, 7, 0, 1, 1)
 
-        self.label_username = QLabel(self.gridLayoutWidget)
+        self.label_username = QLabel(self.load_presets)
         self.label_username.setObjectName(u"label_username")
 
         self.gridLayout.addWidget(self.label_username, 2, 3, 1, 1)
@@ -98,13 +98,13 @@ class Ui_Form(object):
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.label_txt1 = QLabel(self.gridLayoutWidget)
+        self.label_txt1 = QLabel(self.load_presets)
         self.label_txt1.setObjectName(u"label_txt1")
         self.label_txt1.setMaximumSize(QSize(45, 16777215))
 
         self.horizontalLayout_2.addWidget(self.label_txt1)
 
-        self.comboBox = QComboBox(self.gridLayoutWidget)
+        self.comboBox = QComboBox(self.load_presets)
         self.comboBox.setObjectName(u"comboBox")
 
         self.horizontalLayout_2.addWidget(self.comboBox)
@@ -117,7 +117,7 @@ class Ui_Form(object):
         self.verticalLayout_6 = QVBoxLayout()
         self.verticalLayout_6.setSpacing(2)
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
-        self.treeWidget = QTreeWidget(self.gridLayoutWidget)
+        self.treeWidget = QTreeWidget(self.load_presets)
         __qtreewidgetitem = QTreeWidgetItem()
         __qtreewidgetitem.setText(0, u"1");
         self.treeWidget.setHeaderItem(__qtreewidgetitem)
@@ -125,7 +125,7 @@ class Ui_Form(object):
 
         self.verticalLayout_6.addWidget(self.treeWidget)
 
-        self.lineEdit_filter = QLineEdit(self.gridLayoutWidget)
+        self.lineEdit_filter = QLineEdit(self.load_presets)
         self.lineEdit_filter.setObjectName(u"lineEdit_filter")
 
         self.verticalLayout_6.addWidget(self.lineEdit_filter)
@@ -133,33 +133,39 @@ class Ui_Form(object):
 
         self.gridLayout.addLayout(self.verticalLayout_6, 6, 0, 1, 1)
 
+
+        self.verticalLayout_4.addLayout(self.gridLayout)
+
         self.tabWidget.addTab(self.load_presets, "")
         self.create_presets = QWidget()
         self.create_presets.setObjectName(u"create_presets")
-        self.gridLayoutWidget_2 = QWidget(self.create_presets)
-        self.gridLayoutWidget_2.setObjectName(u"gridLayoutWidget_2")
-        self.gridLayoutWidget_2.setGeometry(QRect(10, 10, 601, 511))
-        self.gridLayout_2 = QGridLayout(self.gridLayoutWidget_2)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.create_presets.sizePolicy().hasHeightForWidth())
+        self.create_presets.setSizePolicy(sizePolicy)
+        self.verticalLayout_5 = QVBoxLayout(self.create_presets)
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.gridLayout_2 = QGridLayout()
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setVerticalSpacing(0)
-        self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
         self.horizontalSpacer_4 = QSpacerItem(40, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.gridLayout_2.addItem(self.horizontalSpacer_4, 3, 1, 1, 1)
 
-        self.label_drop = QLabel(self.gridLayoutWidget_2)
+        self.label_drop = QLabel(self.create_presets)
         self.label_drop.setObjectName(u"label_drop")
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_drop.sizePolicy().hasHeightForWidth())
-        self.label_drop.setSizePolicy(sizePolicy)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.label_drop.sizePolicy().hasHeightForWidth())
+        self.label_drop.setSizePolicy(sizePolicy1)
         self.label_drop.setStyleSheet(u"border: 2px dashed #aaa")
         self.label_drop.setAlignment(Qt.AlignCenter)
 
         self.gridLayout_2.addWidget(self.label_drop, 4, 0, 1, 1)
 
-        self.btn_create = QPushButton(self.gridLayoutWidget_2)
+        self.btn_create = QPushButton(self.create_presets)
         self.btn_create.setObjectName(u"btn_create")
 
         self.gridLayout_2.addWidget(self.btn_create, 5, 1, 1, 1)
@@ -170,12 +176,12 @@ class Ui_Form(object):
 
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.label_txt2 = QLabel(self.gridLayoutWidget_2)
+        self.label_txt2 = QLabel(self.create_presets)
         self.label_txt2.setObjectName(u"label_txt2")
 
         self.horizontalLayout_3.addWidget(self.label_txt2)
 
-        self.lineEdit_name = QLineEdit(self.gridLayoutWidget_2)
+        self.lineEdit_name = QLineEdit(self.create_presets)
         self.lineEdit_name.setObjectName(u"lineEdit_name")
 
         self.horizontalLayout_3.addWidget(self.lineEdit_name)
@@ -186,13 +192,13 @@ class Ui_Form(object):
         self.verticalLayout_3 = QVBoxLayout()
         self.verticalLayout_3.setSpacing(2)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.label_record = QLabel(self.gridLayoutWidget_2)
+        self.label_record = QLabel(self.create_presets)
         self.label_record.setObjectName(u"label_record")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.label_record.sizePolicy().hasHeightForWidth())
-        self.label_record.setSizePolicy(sizePolicy1)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.label_record.sizePolicy().hasHeightForWidth())
+        self.label_record.setSizePolicy(sizePolicy2)
         self.label_record.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_3.addWidget(self.label_record)
@@ -200,24 +206,24 @@ class Ui_Form(object):
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.btn_r_record = QPushButton(self.gridLayoutWidget_2)
+        self.btn_r_record = QPushButton(self.create_presets)
         self.btn_r_record.setObjectName(u"btn_r_record")
 
         self.horizontalLayout.addWidget(self.btn_r_record)
 
-        self.btn_r_back = QPushButton(self.gridLayoutWidget_2)
+        self.btn_r_back = QPushButton(self.create_presets)
         self.btn_r_back.setObjectName(u"btn_r_back")
 
         self.horizontalLayout.addWidget(self.btn_r_back)
 
-        self.btn_r_next = QPushButton(self.gridLayoutWidget_2)
+        self.btn_r_next = QPushButton(self.create_presets)
         self.btn_r_next.setObjectName(u"btn_r_next")
         self.btn_r_next.setAutoExclusive(False)
         self.btn_r_next.setFlat(False)
 
         self.horizontalLayout.addWidget(self.btn_r_next)
 
-        self.btn_r_show = QPushButton(self.gridLayoutWidget_2)
+        self.btn_r_show = QPushButton(self.create_presets)
         self.btn_r_show.setObjectName(u"btn_r_show")
 
         self.horizontalLayout.addWidget(self.btn_r_show)
@@ -228,25 +234,31 @@ class Ui_Form(object):
 
         self.gridLayout_2.addLayout(self.verticalLayout_3, 1, 1, 1, 1)
 
-        self.txtEdit_info = QTextEdit(self.gridLayoutWidget_2)
+        self.txtEdit_info = QTextEdit(self.create_presets)
         self.txtEdit_info.setObjectName(u"txtEdit_info")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.txtEdit_info.sizePolicy().hasHeightForWidth())
-        self.txtEdit_info.setSizePolicy(sizePolicy2)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.txtEdit_info.sizePolicy().hasHeightForWidth())
+        self.txtEdit_info.setSizePolicy(sizePolicy3)
 
         self.gridLayout_2.addWidget(self.txtEdit_info, 4, 1, 1, 1)
 
-        self.listWidget = QListWidget(self.gridLayoutWidget_2)
+        self.listWidget = QListWidget(self.create_presets)
         self.listWidget.setObjectName(u"listWidget")
-        sizePolicy2.setHeightForWidth(self.listWidget.sizePolicy().hasHeightForWidth())
-        self.listWidget.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.listWidget.sizePolicy().hasHeightForWidth())
+        self.listWidget.setSizePolicy(sizePolicy3)
 
         self.gridLayout_2.addWidget(self.listWidget, 1, 0, 1, 1)
 
         self.gridLayout_2.setRowStretch(1, 80)
+
+        self.verticalLayout_5.addLayout(self.gridLayout_2)
+
         self.tabWidget.addTab(self.create_presets, "")
+
+        self.horizontalLayout_5.addWidget(self.tabWidget)
+
 
         self.retranslateUi(Form)
 
