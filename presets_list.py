@@ -84,11 +84,11 @@ class PresetsList():
         if os.path.isdir(setup_path) is False:
             os.makedirs(setup_path)
         file_path = setup_path+"/setup.cmd"
-        print("witeSetupAsCode: ",file_path,"\n  node: ",node_path)
+        # print("witeSetupAsCode: ",file_path,"\n  node: ",node_path)
         cmd = "opscript -G -r " + node_path + " > " + file_path
         # print("witeSetupAsCode: ",cmd)
         hou.hscript(cmd)
-        print("-----------------  witeSetupAsCode ----------:  ")
+        # print("-----------------  witeSetupAsCode ----------:  ")
         # In case you pass multiple nodes "/obj/geo/sphere /obj/geo/grid", take only first to get their parents
         if node_path.find(" ") > 0:
             node_path = node_path.split(" ")[0]
@@ -100,7 +100,7 @@ class PresetsList():
         # Read data from json file
         with open(setup_path+"/info.json") as f:
             data = json.load(f)
-        print("------------- readSetupAsCode ------------: \n",data)
+        # print("------------- readSetupAsCode ------------: \n",data)
         node_path = data["node_path"]
         setup_description = data["description"]
         list = data["list"]
@@ -115,28 +115,28 @@ class PresetsList():
 
     def __createParentNodes(self,node_path,list):
         # Go over parents tuple data and create nodes if they don't exist yet.
-        print("########## ----- CREATE  PARENTS  IN  -----------  ########")
+        # print("########## ----- CREATE  PARENTS  IN  -----------  ########")
         is_exist = False
         for data in list:
             is_exist = False
             path = data[0]
-            print("---------------", path, "----------")
+            # print("---------------", path, "----------")
             try:
                 p = hou.node(path).name()
                 is_exist = True
-                print("try: ", is_exist)
+                # print("try: ", is_exist)
             except:
                 is_exist = False
-                print("except: ", is_exist)
+                # print("except: ", is_exist)
                 pass
             if is_exist is False:
                 path = data[0].strip(data[2])
                 n = hou.node(path).createNode(data[1], data[2])
-                print("Created",n.path())
+                # print("Created",n.path())
         # Create subnet __setup__ to load data there
         num = len(list) - 1
         parent_node = list[num][0]
-        print("Old parent:", parent_node)
+        # print("Old parent:", parent_node)
         subnet = "__setup__"
         base = subnet
         # Check if any other __setup__ has been already created.
@@ -148,21 +148,21 @@ class PresetsList():
                 pos = n.position()
                 pos[1] -= .75
 
-        print("subnet:", subnet)
+        # print("subnet:", subnet)
         new_parent_node = parent_node + "/" + subnet
-        print("New parent:", new_parent_node)
+        # print("New parent:", new_parent_node)
         subnet_node = hou.node(parent_node).createNode("subnet", subnet)
         subnet_node.setPosition(pos)
         subnet_node.setColor(hou.Color(0.384, 0.184, 0.329))
-        print("########## ----- CREATE  PARENTS  OUT  -----------  ########")
+        # print("########## ----- CREATE  PARENTS  OUT  -----------  ########")
         #return is_exist
         return subnet
     def __loadSetupInSubnet(self,node_path,parent_node,setup_path,subnet):
-        print("------------- __loadSetupInSubnet ------------: \n")
+        # print("------------- __loadSetupInSubnet ------------: \n")
         new_parent_node = parent_node + "/" + subnet
-        print("New parent:", new_parent_node)
+        # print("New parent:", new_parent_node)
         # Read and modify cmd file. Create a new one with new parent node to be sure it's empty.
-        print(setup_path + "/setup.cmd")
+        # print(setup_path + "/setup.cmd")
         with open(setup_path + "/setup.cmd") as f:
             txt = f.read()
         # print(txt)
@@ -184,18 +184,18 @@ class PresetsList():
             path = n.parent().path()
             # print(path)
         # Remove / and /obj paths
-        print(list)
+        # print(list)
         # list.pop()
         list.pop()
         list.reverse()
-        print(list)
+        # print(list)
         return list
     def __setCurrentView(self,node_path):
-        print("------------- __setCurrentView ------------: \n")
+        # print("------------- __setCurrentView ------------: \n")
         # print(node_path)
         n = hou.node(node_path)
         # print(n)
-        print(n.parent().path())
+        # print(n.parent().path())
         scene_viewer = toolutils.sceneViewer()
         scene_viewer.cd(n.parent().path())
         network_editor = hou.ui.paneTabOfType(hou.paneTabType.NetworkEditor)

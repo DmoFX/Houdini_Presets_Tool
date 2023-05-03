@@ -149,11 +149,11 @@ class MainWidget(QWidget):
         self.type = self.ui.comboBox.currentIndex()
         self.__load_tree_widget()
     def __treeWidget_clicked(self):
-        print("Tree Widget selected.")
+        # print("Tree Widget selected.")
         #print("Selected: ", self.ui.treeWidget.currentItem().text(0),self.ui.treeWidget.currentItem().parent().text(0))
         try:
             self.selected_setup = f"{self.ui.treeWidget.currentItem().user}/{self.ui.treeWidget.currentItem().category}/{self.ui.treeWidget.currentItem().setup}"
-            print("Selected: ", self.selected_setup)
+            # print("Selected: ", self.selected_setup)
             self.__load_label_info()
             self.__load_label_username()
             # self.__load_label_screenshots(int(self.width()*.5))
@@ -166,7 +166,7 @@ class MainWidget(QWidget):
             pass
 
     def __onItemClicked(self,it,col):
-        print("----------- treeWidget Item Clicked ----------")
+        # print("----------- treeWidget Item Clicked ----------")
         # print(it,col,it.text(col))
         self.__treeWidget_clicked()
     def __createTreeWidgetItems(self,users,categories):
@@ -202,12 +202,12 @@ class MainWidget(QWidget):
                 QMessageBox.warning(self,"Warning!","Setup name must be unique.\n"
                                                     "Drag and drop your setup into the slot.",QMessageBox.Ok)
     def __btn_load_clicked(self):
-        print("btn_load: ")
+        # print("btn_load: ")
         # Create setup from data.
         s = self.selected_setup.split("/")
         if len(s)==3 and len(s[2])>0:
             setup_path = self.folder+"/"+self.selected_setup
-            print("btn_load: ", self.selected_setup,setup_path)
+            # print("btn_load: ", self.selected_setup,setup_path)
             description = self.presets.readSetupAsCode(setup_path)
             self.ui.label_info.setText(description)
         else:
@@ -253,20 +253,20 @@ class MainWidget(QWidget):
             # print(event.mimeData().hasText(), event.mimeData())
             event.setDropAction(Qt.DropAction.CopyAction)
             self.node_path = event.mimeData().text()
-            print("dropEvent: ", self.node_path)
-            print("dropEvent: ", self.node_path.split("\t"))
+            # print("dropEvent: ", self.node_path)
+            # print("dropEvent: ", self.node_path.split("\t"))
             s = self.node_path.split("\t")
             if len(s)>1:
                 self.node_path = " ".join(s)
-                print("join",len(s),s)
-            print("dropEvent: ", self.node_path,len(self.node_path))
+                # print("join",len(s),s)
+            # print("dropEvent: ", self.node_path,len(self.node_path))
             if len(self.node_path)>0:
                 try:
                     # node = hou.node(self.node_path)
                     # node.setColor(hou.Color(0.384, 0.184, 0.329))
                     pxmap = QPixmap("{}icons/accepted_icon.png".format(self.libs_path)).scaled(100,100)
                     self.ui.label_drop.setPixmap(pxmap)
-                    print("adding texture")
+                    # print("adding texture")
                     QTimer.singleShot(2000, self.__label_drop_change_text)
                 except:
                     pass
@@ -294,7 +294,7 @@ class MainWidget(QWidget):
                                                   "Drag and drop your setup into the slot.",QMessageBox.Ok)
     def label_record_setIcon(self,img_path):
         # Receiving signal from ScreenCapture and setting QLabel with QIcon(img_path)
-        print("label_record, signal: ",img_path)
+        # print("label_record, signal: ",img_path)
         if len(img_path)>0 and os.path.isfile(img_path) is True:
             pxmap = self.__scaled_pxmap(img_path,self.image_width)
             self.ui.label_record.setPixmap(pxmap)
@@ -317,10 +317,10 @@ class MainWidget(QWidget):
         pxmap = QPixmap(img_path).scaled(width,int(width*ratio))
         return pxmap
     def __btn_r_next_clicked(self):
-        print("btn_r_Next")
+        # print("btn_r_Next")
         self.r_icon_change("next")
     def __btn_r_back_clicked(self):
-        print("btn_r_Back")
+        # print("btn_r_Back")
         self.r_icon_change("back")
     def r_icon_change(self,choice="next"):
         # print("----------- r_icon_change ----------")
@@ -343,10 +343,10 @@ class MainWidget(QWidget):
                 self.screenshot_img = next_img
     def eventFilter(self, src:QObject, e:QEvent):
         if e.type()==QEvent.MouseButtonDblClick and src is self.ui.label_record:
-            print("double clicked on label_record")
+            # print("double clicked on label_record")
             self.preview_full_size_icon(self.screenshot_img)
         if e.type()==QEvent.MouseButtonDblClick and src is self.ui.label_screenshots:
-            print("double clicked on label_screenshots")
+            # print("double clicked on label_screenshots")
             self.preview_full_size_icon(self.load_screenshot_img)
         if e.type()==QEvent.Resize:
             # Update Image size if widget is resized.
@@ -356,7 +356,7 @@ class MainWidget(QWidget):
 
     def preview_full_size_icon(self,img_path):
         if os.path.isfile(img_path) is True:
-            print(img_path)
+            # print(img_path)
             # Create simple Dialog to preview image in full resolution.
             pxmap = QPixmap(img_path)
             x, y = (pxmap.size().width(), pxmap.size().height())
@@ -412,16 +412,16 @@ class MainWidget(QWidget):
             result = True
         return result
     def __btn_l_next_clicked(self):
-        print("----------- __btn_l_next_clicked ----------")
+        # print("----------- __btn_l_next_clicked ----------")
         self.l_icon_change("next")
     def __btn_l_back_clicked(self):
-        print("----------- __btn_l_back_clicked ----------")
+        # print("----------- __btn_l_back_clicked ----------")
         self.l_icon_change("back")
     def l_icon_change(self,choice="next"):
         folder_path = self.folder + "/" + self.selected_setup+"/"
         if self.treeWidget_selected_setup_check() and os.path.isfile(self.load_screenshot_img):
             # img_path = setup_path + f"/screenshots/img_0.png"
-            print("current img_path: ",self.load_screenshot_img)
+            # print("current img_path: ",self.load_screenshot_img)
             s = re.findall(r'\d+', self.load_screenshot_img)  # Returns list of numbers in a string: [0,5,3]
             num = s[len(s) - 1]
             # Based on choice will be Next or Back image
@@ -437,12 +437,12 @@ class MainWidget(QWidget):
                 self.ui.label_screenshots.setPixmap(pxmap)
                 self.load_screenshot_img = next_img
     def __btn_l_show_clicked(self):
-        print("----------- __btn_l_show_clicked ----------")
+        # print("----------- __btn_l_show_clicked ----------")
         video_path = self.folder + "/" + self.selected_setup + "/screenshots/video.mp4"
         if self.treeWidget_selected_setup_check() and os.path.isfile(video_path):
             self.open_video_in_VLC(video_path)
     def __btn_r_show_clicked(self):
-        print("----------- __btn_r_show_clicked ----------")
+        # print("----------- __btn_r_show_clicked ----------")
         if self.__lineEdit_name_check() is True:
             folder_path = "{}/{}/{}".format(self.folder, self.user, self.ui.lineEdit_name.text())
             video_path = folder_path + "/screenshots/video.mp4"
@@ -455,7 +455,8 @@ class MainWidget(QWidget):
         video_path = video_path.replace("/", "\\")
         # video_path = "D:\\Docs\\Work\\Python\\Projects\\Output\\ScreenCapture Output\\screenshots\\video.mp4"
         # print(video_path)
-        p = subprocess.Popen([self.vlc_path, video_path, "--loop"])
+        p = subprocess.Popen([self.vlc_path, video_path, "--loop"]) # Windows
+        # p = subprocess.Popen(['run-clean-env', 'vlc', video_path, "--loop"])  # Linux
     def __lineEdit_filter_edited(self):
         # print("----------- __lineEdit_filter_clicked ----------")
         input_name = self.ui.lineEdit_filter.text()
