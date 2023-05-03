@@ -1,4 +1,5 @@
 import sys,os
+import time
 import traceback
 
 from PySide2.QtWidgets import QMainWindow, QMenuBar, QMenu, QStatusBar
@@ -10,11 +11,13 @@ from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from PySide2.QtGui import QGuiApplication,QImageWriter
 import numpy as np
-import cv2 as cv
-import time
-from PIL import Image, ImageGrab
-import pyautogui
-import mss
+try:
+    import cv2 as cv
+    from PIL import Image, ImageGrab
+    import pyautogui
+    import mss
+except:
+    pass
 
 class VideoSignal(QObject):
     finished = Signal()

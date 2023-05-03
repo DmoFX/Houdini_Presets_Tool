@@ -1,7 +1,6 @@
 import sys,os,time,re,subprocess,shutil
 from presets_ui import Ui_Form
 from presets_list import PresetsList,PresetsItem
-from presets_screencapture import ScreenCapture
 from PySide2.QtWidgets import QApplication,QMainWindow,QDialog,QWidget,QLabel,QVBoxLayout,QPushButton,QDial,QTreeWidget, QTreeView,QTreeWidgetItem,QListWidgetItem,QMessageBox,QAction,QMenu
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtCore import QFile, QTimer, QThreadPool, QRunnable, Signal, QCoreApplication,QModelIndex
@@ -10,6 +9,7 @@ from PySide2.QtCore import Qt,QModelIndex,QSize,QEvent,QObject
 from PySide2.QtGui import QMovie,QPixmap,QImage,QMouseEvent,QIcon
 try:
     import hou
+    from presets_screencapture import ScreenCapture
 except:
     pass
 
