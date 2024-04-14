@@ -21,9 +21,10 @@ class MainWidget(QWidget):
         # self.label = self.findChild(QLabel,"label")
         # print(self.label.text())
         # ------------------------  UPDATE  THIS INFO  ------------------------------#
-        self.libs_path = "C:/Users/lllde/Documents/houdini19.5/python3.9libs/"  # Path is used to load icons.
+        self.libs_path = "C:/Users/lllde/OneDrive/Documents/houdini20.0/python3.10libs/"  # Path is used to load icons.
         self.folder = "D:/Docs/Work/Python/Projects/Presets"  # Path is used to store presets data on disk.
         self.vlc_path = "C:/Program Files/VideoLAN/VLC/vlc.exe"  # Direct path to VLC video launcher.
+        self.vlc_path = "C:/Program Files (x86)/VideoLAN/VLC/vlc.exe"
         # ---------------------------------------------------------------------------#
         self.user = os.environ.get("USERNAME")
         self.presets = PresetsList(self.folder)

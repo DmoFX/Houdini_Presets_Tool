@@ -160,6 +160,7 @@ class Ui_Form(object):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.label_drop.sizePolicy().hasHeightForWidth())
         self.label_drop.setSizePolicy(sizePolicy1)
+        self.label_drop.setMaximumSize(QSize(400, 16777215))
         self.label_drop.setStyleSheet(u"border: 2px dashed #aaa")
         self.label_drop.setAlignment(Qt.AlignCenter)
 
@@ -320,13 +321,10 @@ class Ui_Form(object):
 #endif // QT_CONFIG(tooltip)
         self.btn_r_show.setText("")
         self.txtEdit_info.setHtml(QCoreApplication.translate("Form", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"hr { height: 1px; border-width: 0; }\n"
-"li.unchecked::marker { content: \"\\2610\"; }\n"
-"li.checked::marker { content: \"\\2612\"; }\n"
-"</style></head><body style=\" font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", None))
+"</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Segoe UI'; font-size:9pt;\"><br /></p></body></html>", None))
         self.txtEdit_info.setPlaceholderText(QCoreApplication.translate("Form", u"Add description of your setup please.", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.create_presets), QCoreApplication.translate("Form", u"Create Preset", None))
     # retranslateUi
