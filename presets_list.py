@@ -37,13 +37,14 @@ class PresetsList():
                 if key == os.environ.get("USERNAME"):
                     [cat_list.add(f[0]) for f in self.data_structure[key]]
                     #print(values)
+        #Turned option "Show users" off for now.
+        # elif type == 1:
+        #     # Only SHOW users categories.
+        #     for key in list(self.data_structure.keys()):
+        #         for user in self.show_users:
+        #             if key == user:
+        #                 [cat_list.add(f[0]) for f in self.data_structure[key]]
         elif type == 1:
-            # Only SHOW users categories.
-            for key in list(self.data_structure.keys()):
-                for user in self.show_users:
-                    if key == user:
-                        [cat_list.add(f[0]) for f in self.data_structure[key]]
-        elif type == 2:
             # All FX categories.
             for key in self.data_structure.keys():
                 values = [f[0] for f in self.data_structure[key]]
@@ -223,7 +224,7 @@ class PresetsList():
                 if os.path.isdir(self.dir_path + "/" + user + "/" + category):
                     setups = os.listdir(self.dir_path + "/" + user + "/" + category)
                     # print(f"{user}: {category} : {setups}")
-                    filtered_setups = [f for f in setups if f.find(input_name)>=0]
+                    filtered_setups = [f for f in setups if f.lower().find(input_name)>=0]
                     if len(filtered_setups)>0:
                         cat_list.append([category, filtered_setups])
             if len(cat_list)>0:

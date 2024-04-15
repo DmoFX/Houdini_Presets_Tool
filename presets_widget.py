@@ -34,7 +34,8 @@ class MainWidget(QWidget):
 
         self.ui = Ui_Form()
         self.ui.setupUi(self)
-        self.ui.comboBox.addItems(["User presets","Show presets","FX presets"])
+        # self.ui.comboBox.addItems(["User presets","Show presets","FX presets"])
+        self.ui.comboBox.addItems(["User presets","FX presets"])
         self.type = 0
         self.ui.comboBox.setCurrentIndex(self.type)
         self.ui.comboBox.currentIndexChanged.connect(self.__comboBox_clicked)
@@ -102,16 +103,18 @@ class MainWidget(QWidget):
         categories = self.presets.getCategories(self.type)
         # print("categories: ",categories)
         users = self.presets.getUsers()
-        # print("-------------------")
+        # print("------------------- type =",self.type)
         if self.type == 0:
             # print(f"{self.user}")
             self.__createTreeWidgetItems([self.user], categories)
+        #Turned option "Show users" off for now.
+        # elif self.type == 1:
+        #     users = self.presets.getShowUsers()
+        #     # print("show_users:",users)
+        #     self.__createTreeWidgetItems(users,categories)
         elif self.type == 1:
-            users = self.presets.getShowUsers()
-            # print("show_users:",users)
-            self.__createTreeWidgetItems(users,categories)
-        elif self.type == 2:
             users = self.presets.getUsers()
+            # print(users,categories)
             self.__createTreeWidgetItems(users,categories)
         # print(categories)
 
