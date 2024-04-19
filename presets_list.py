@@ -159,14 +159,15 @@ class PresetsList():
         #return is_exist
         return subnet
     def __loadSetupInSubnet(self,node_path,parent_node,setup_path,subnet):
-        # print("------------- __loadSetupInSubnet ------------: \n")
+        print("------------- __loadSetupInSubnet ------------: \n")
         new_parent_node = parent_node + "/" + subnet
-        # print("New parent:", new_parent_node)
+        print("New parent:", new_parent_node)
         # Read and modify cmd file. Create a new one with new parent node to be sure it's empty.
-        # print(setup_path + "/setup.cmd")
+        print(setup_path + "/setup.cmd")
         with open(setup_path + "/setup.cmd") as f:
             txt = f.read()
         # print(txt)
+        print("------- REPLCAE:", "opcf " + parent_node, "opcf " + new_parent_node)
         txt = txt.replace("opcf " + parent_node, "opcf " + new_parent_node)
         # print(txt)
         with open(setup_path + "/setup_unique.cmd", 'w') as f:

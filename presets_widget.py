@@ -121,7 +121,7 @@ class MainWidget(QWidget):
     def __load_list_widget(self):
         #categories = ["category_"+str(s) for s in range(30)]
         self.ui.listWidget.clear()
-        categories = self.presets.getCategories(2)
+        categories = self.presets.getCategories(1)
         for category in categories:
             self.ui.listWidget.addItem(QListWidgetItem(category))
         self.ui.listWidget.setCurrentRow(0)
@@ -134,7 +134,7 @@ class MainWidget(QWidget):
     # Return name of the category in the listWidget
     def __listWidget_clicked(self):
         #index = self.ui.listWidget.currentIndex()
-        #print(self.ui.listWidget.currentItem().text())
+        # print(self.ui.listWidget.currentItem().text())
         category = self.ui.listWidget.currentItem().text()
         txt = self.ui.lineEdit_name.text()
         s = txt.split("/")
