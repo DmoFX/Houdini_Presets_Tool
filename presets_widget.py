@@ -30,6 +30,7 @@ class MainWidget(QWidget):
         self.presets = PresetsList(self.folder)
         self.node_path = ""
         self.selected_setup = ""
+        self.movie = QMovie("{}icons/default_icon.gif".format(self.libs_path))
 
 
         self.ui = Ui_Form()
@@ -387,6 +388,7 @@ class MainWidget(QWidget):
     def __load_label_screenshots(self):
         # print("----------- __load_label_screenshots ----------")
         setup_path = self.folder + "/" + self.selected_setup
+        self.ui.label_screenshots.clear()
         if self.treeWidget_selected_setup_check() is True:
             self.load_screenshot_img = setup_path + f"/screenshots/img_0.png"
             if os.path.isfile(self.load_screenshot_img) is True:
@@ -401,10 +403,10 @@ class MainWidget(QWidget):
             self.load_default_gif()
     def load_default_gif(self):
         # print("----------- load_default_gif ----------")
-        movie = QMovie("{}icons/default_icon.gif".format(self.libs_path))
-        movie.setScaledSize(QSize(self.image_width, int(self.image_width*.5)))
-        self.ui.label_screenshots.setMovie(movie)
-        movie.start()
+        # self.ui.label_screenshots.clear()
+        self.movie.setScaledSize(QSize(self.image_width, int(self.image_width*.5)))
+        self.ui.label_screenshots.setMovie(self.movie)
+        self.movie.start()
 
         # self.ui.label_screenshots.setAlignment(Qt.AlignAbsolute)
         # self.ui.label_screenshots.setAlignment(Qt.AlignTop)

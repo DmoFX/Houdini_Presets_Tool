@@ -30,6 +30,34 @@ class Ui_Form(object):
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setHorizontalSpacing(10)
         self.gridLayout.setVerticalSpacing(5)
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.label_txt1 = QLabel(self.load_presets)
+        self.label_txt1.setObjectName(u"label_txt1")
+        self.label_txt1.setMaximumSize(QSize(45, 16777215))
+
+        self.horizontalLayout_2.addWidget(self.label_txt1)
+
+        self.comboBox = QComboBox(self.load_presets)
+        self.comboBox.setObjectName(u"comboBox")
+
+        self.horizontalLayout_2.addWidget(self.comboBox)
+
+        self.horizontalLayout_2.setStretch(0, 1)
+        self.horizontalLayout_2.setStretch(1, 2)
+
+        self.gridLayout.addLayout(self.horizontalLayout_2, 2, 0, 1, 1)
+
+        self.horizontalSpacer = QSpacerItem(40, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer, 7, 0, 1, 1)
+
+        self.label_username = QLabel(self.load_presets)
+        self.label_username.setObjectName(u"label_username")
+        self.label_username.setMaximumSize(QSize(16777215, 16777215))
+
+        self.gridLayout.addWidget(self.label_username, 2, 2, 1, 1)
+
         self.verticalLayout = QVBoxLayout()
         self.verticalLayout.setSpacing(2)
         self.verticalLayout.setObjectName(u"verticalLayout")
@@ -69,15 +97,35 @@ class Ui_Form(object):
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_4)
 
-        self.label_info = QLabel(self.load_presets)
+        self.scrollArea = QScrollArea(self.load_presets)
+        self.scrollArea.setObjectName(u"scrollArea")
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 397, 175))
+        self.verticalLayout_7 = QVBoxLayout(self.scrollAreaWidgetContents)
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
+        self.label_info = QLabel(self.scrollAreaWidgetContents)
         self.label_info.setObjectName(u"label_info")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.label_info.sizePolicy().hasHeightForWidth())
+        self.label_info.setSizePolicy(sizePolicy1)
         self.label_info.setMaximumSize(QSize(16777215, 16777215))
         self.label_info.setAlignment(Qt.AlignCenter)
+        self.label_info.setWordWrap(True)
+        self.label_info.setOpenExternalLinks(True)
+        self.label_info.setTextInteractionFlags(Qt.LinksAccessibleByMouse|Qt.TextSelectableByMouse)
 
-        self.verticalLayout_2.addWidget(self.label_info)
+        self.verticalLayout_7.addWidget(self.label_info)
+
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+
+        self.verticalLayout_2.addWidget(self.scrollArea)
 
         self.verticalLayout_2.setStretch(0, 10)
-        self.verticalLayout_2.setStretch(2, 5)
+        self.verticalLayout_2.setStretch(2, 6)
 
         self.verticalLayout.addLayout(self.verticalLayout_2)
 
@@ -88,39 +136,11 @@ class Ui_Form(object):
         self.verticalLayout.addWidget(self.btn_load)
 
 
-        self.gridLayout.addLayout(self.verticalLayout, 6, 3, 1, 1)
+        self.gridLayout.addLayout(self.verticalLayout, 6, 2, 1, 1)
 
-        self.horizontalSpacer = QSpacerItem(40, 0, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_2 = QSpacerItem(40, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
 
-        self.gridLayout.addItem(self.horizontalSpacer, 7, 0, 1, 1)
-
-        self.label_username = QLabel(self.load_presets)
-        self.label_username.setObjectName(u"label_username")
-        self.label_username.setMaximumSize(QSize(16777215, 16777215))
-
-        self.gridLayout.addWidget(self.label_username, 2, 3, 1, 1)
-
-        self.horizontalSpacer_2 = QSpacerItem(40, 0, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)
-
-        self.gridLayout.addItem(self.horizontalSpacer_2, 7, 3, 1, 1)
-
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.label_txt1 = QLabel(self.load_presets)
-        self.label_txt1.setObjectName(u"label_txt1")
-        self.label_txt1.setMaximumSize(QSize(45, 16777215))
-
-        self.horizontalLayout_2.addWidget(self.label_txt1)
-
-        self.comboBox = QComboBox(self.load_presets)
-        self.comboBox.setObjectName(u"comboBox")
-
-        self.horizontalLayout_2.addWidget(self.comboBox)
-
-        self.horizontalLayout_2.setStretch(0, 1)
-        self.horizontalLayout_2.setStretch(1, 2)
-
-        self.gridLayout.addLayout(self.horizontalLayout_2, 2, 0, 1, 1)
+        self.gridLayout.addItem(self.horizontalSpacer_2, 7, 2, 1, 1)
 
         self.verticalLayout_6 = QVBoxLayout()
         self.verticalLayout_6.setSpacing(2)
@@ -141,17 +161,21 @@ class Ui_Form(object):
 
         self.gridLayout.addLayout(self.verticalLayout_6, 6, 0, 1, 1)
 
+        self.gridLayout.setColumnStretch(0, 1)
+        self.gridLayout.setColumnStretch(2, 1)
+        self.gridLayout.setColumnMinimumWidth(0, 1)
+        self.gridLayout.setColumnMinimumWidth(2, 1)
 
         self.verticalLayout_4.addLayout(self.gridLayout)
 
         self.tabWidget.addTab(self.load_presets, "")
         self.create_presets = QWidget()
         self.create_presets.setObjectName(u"create_presets")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.create_presets.sizePolicy().hasHeightForWidth())
-        self.create_presets.setSizePolicy(sizePolicy1)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.create_presets.sizePolicy().hasHeightForWidth())
+        self.create_presets.setSizePolicy(sizePolicy2)
         self.verticalLayout_5 = QVBoxLayout(self.create_presets)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.gridLayout_2 = QGridLayout()
@@ -163,11 +187,8 @@ class Ui_Form(object):
 
         self.label_drop = QLabel(self.create_presets)
         self.label_drop.setObjectName(u"label_drop")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.label_drop.sizePolicy().hasHeightForWidth())
-        self.label_drop.setSizePolicy(sizePolicy2)
+        sizePolicy1.setHeightForWidth(self.label_drop.sizePolicy().hasHeightForWidth())
+        self.label_drop.setSizePolicy(sizePolicy1)
         self.label_drop.setMaximumSize(QSize(400, 16777215))
         self.label_drop.setStyleSheet(u"border: 2px dashed #aaa")
         self.label_drop.setAlignment(Qt.AlignCenter)
@@ -279,6 +300,8 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        self.label_txt1.setText(QCoreApplication.translate("Form", u"Load as:", None))
+        self.label_username.setText("")
 #if QT_CONFIG(tooltip)
         self.label_screenshots.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p>Double click for the full resolution image.</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
@@ -295,10 +318,8 @@ class Ui_Form(object):
         self.btn_l_next.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p>Next image.</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.btn_l_next.setText("")
-        self.label_info.setText(QCoreApplication.translate("Form", u"Preset information.", None))
+        self.label_info.setText(QCoreApplication.translate("Form", u"Preset information", None))
         self.btn_load.setText(QCoreApplication.translate("Form", u"Load", None))
-        self.label_username.setText("")
-        self.label_txt1.setText(QCoreApplication.translate("Form", u"Load as:", None))
         self.lineEdit_filter.setText("")
         self.lineEdit_filter.setPlaceholderText(QCoreApplication.translate("Form", u"Filter presets by name.", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.load_presets), QCoreApplication.translate("Form", u"Load Presets", None))
